@@ -1,7 +1,24 @@
 # Shader-Programming-Basics
 
+This repository contains learning materials for shader programming.
+
 이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL(High-Level Shading Language)과 DirectX 환경을 기반으로 체계적으로 학습할 수 있도록 설계되었습니다. 
 
+# 목차
+## Basics
+
+* [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
+* [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
+* [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
+* [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 3)](./Shader%20Learning/Basics/4.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%203).md)
+
+---
+
+## Advanced
+
+* [실사 렌더링을 위한 PBR 셰이더 가이드](./Shader%20Learning/Adbanced/5.%20실사%20렌더링을%20위한%20PBR%20셰이더%20가이드%20.md)
+* [수많은 광원을 위한 Deferred Shading](./Shader%20Learning/Adbanced/6.%20수많은%20광원을%20위한%20Deferred%20Shading.md)
+* [GPU 기반 동적 지형 렌더링 테셀레이션 파이프라인](./Shader%20Learning/Adbanced/7.%20GPU%20기반%20동적%20지형%20렌더링%20테셀레이션%20파이프라인.md)
 ---
 
 # 선수 지식
