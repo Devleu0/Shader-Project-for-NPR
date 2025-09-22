@@ -1,7 +1,7 @@
 # 유니티 셰이더 Part 1 학습 자료
-이 문서는 '유니티 셰이더 16주 완성 커리큘럼'의 Part 1 내용을 보충하는 학습 자료입니다. 각 주차별 핵심 개념에 대한 상세한 설명과 코드 예제를 통해 셰이더의 기초를 탄탄히 다지는 것을 목표로 합니다.
+이 문서는 '유니티 셰이더 16주 완성 커리큘럼'의 Part 1 학습 자료입니다. 코드 예제를 통해 셰이더의 기초를 탄탄히 다지는 것을 목표로 합니다.
 
-## 1주차: 그래픽스 파이프라인 입문
+## 1챕터: 그래픽스 파이프라인 입문
 핵심 개념 상세
 ### 셰이더 (Shader) 란?
 셰이더는 GPU(그래픽 처리 장치)에서 실행되도록 작성된 프로그램입니다. 화면에 픽셀 하나를 어떤 색으로 그릴지, 3D 모델의 정점을 어디에 위치시킬지 등 그래픽 렌더링의 거의 모든 과정을 제어합니다. CPU가 게임 로직, 물리 계산 등 일반적인 연산을 담당한다면, GPU는 셰이더를 통해 수많은 픽셀과 정점을 동시에 병렬로 처리하는 데 특화되어 있습니다.
@@ -32,7 +32,7 @@ Built-in Render Pipeline`: 가장 전통적인 방식의 파이프라인입니�
 `과제 가이드`
 URP 프로젝트 생성은 'Unity Hub'에서 새 프로젝트를 생성할 때 템플릿 목록에서 '3D (URP)'를 선택하면 간단히 완료됩니다. 프로젝트가 생성되면 Assets/Settings 폴더에서 URP 에셋 파일을 찾아 Project Settings > Graphics의 'Scriptable Render Pipeline Settings'에 할당되어 있는지 확인해보세요.
 
-## 2주차: 첫 셰이더와 ShaderLab
+## 2챕터: 첫 셰이더와 ShaderLab
 `ShaderLab 구조`
 유니티 셰이더 파일은 HLSL 코드를 감싸는 ShaderLab이라는 선언적 언어로 작성됩니다.
 ```c
@@ -113,7 +113,7 @@ Shader "MyShaders/SimpleColor"
     }
 }
 ```
-## 3주차: HLSL 기초와 좌표 공간
+## 3챕터: HLSL 기초와 좌표 공간
 
 * HLSL (High-Level Shading Language)
 
@@ -135,9 +135,9 @@ DirectX 기반의 셰이딩 언어로, C와 유사한 문법을 가집니다. �
 UNITY_MATRIX_MVP (Built-in) / TransformObjectToHClip() (URP): 이 행렬(또는 함수)은 정점 위치를 오브젝트 공간에서 클립 공간으로 한 번에 변환해주는 마법 같은 도구입니다. (Model * View * Projection 행렬의 곱)
 
 과제 가이드
-2주차 예제 코드의 vert 함수를 다시 살펴보세요. TransformObjectToHClip(IN.positionOS.xyz) 라인이 바로 3D 오브젝트의 정점 위치(positionOS)를 최종적으로 화면에 표시될 좌표(positionHCS)로 변환하는 핵심 코드입니다. 이 한 줄에 좌표 공간 변환의 모든 과정이 압축되어 있습니다.
+2챕터 예제 코드의 vert 함수를 다시 살펴보세요. TransformObjectToHClip(IN.positionOS.xyz) 라인이 바로 3D 오브젝트의 정점 위치(positionOS)를 최종적으로 화면에 표시될 좌표(positionHCS)로 변환하는 핵심 코드입니다. 이 한 줄에 좌표 공간 변환의 모든 과정이 압축되어 있습니다.
 
-## 4주차: 텍스처와 UV 매핑
+## 4챕터: 텍스처와 UV 매핑
 ` UV 좌표`
 3D 모델의 표면을 2D 평면처럼 펼쳐놓은 좌표계입니다. U는 가로(x), V는 세로(y) 방향을 나타내며, 보통 0에서 1 사이의 값을 가집니다. 이 UV 좌표 덕분에 2D 이미지를 3D 모델 표면에 정확하게 입힐 수 있습니다.
 
