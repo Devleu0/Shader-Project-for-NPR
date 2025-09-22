@@ -1,15 +1,15 @@
-DirectX 11 학습 2단계: 중급 (핵심 기능 마스터)
-목표
+# DirectX 11 학습 2단계: 중급 (핵심 기능 마스터)
+### 목표
 단순한 도형 렌더링을 넘어, 3D 그래픽스의 핵심 요소인 텍스처, 조명, 카메라의 원리를 이해하고 직접 구현함으로써 사실적인 3D 씬을 구성하는 능력을 기릅니다. 이 단계를 마치면 3D 모델에 텍스처를 입히고, 조명을 비추며, 원하는 시점에서 씬을 바라볼 수 있게 됩니다.
 
-1. HLSL 셰이더 프로그래밍 심화
+## 1. HLSL 셰이더 프로그래밍 심화
 중급 단계에서는 C++ 애플리케이션과 셰이더 간의 데이터 통신이 더욱 중요해집니다.
 
 상수 버퍼 (Constant Buffer): C++ 코드에서 계산된 데이터(행렬, 조명 정보, 시간 등)를 GPU의 셰이더로 전달하는 주된 방법입니다. cbuffer 키워드를 사용하여 HLSL에서 선언하며, C++에서는 ID3D11Buffer로 생성하고 UpdateSubresource 또는 Map/Unmap을 통해 데이터를 업데이트합니다.
 
 시맨틱 (Semantics): 셰이더의 입력과 출력 데이터가 어떤 의미를 갖는지 알려주는 식별자입니다. POSITION, NORMAL, TEXCOORD, COLOR 등이 있으며, 입력 레이아웃과 셰이더 스테이지 간의 데이터 연결을 보장합니다.
 
-2. 텍스처링 (Texturing)
+## 2. 텍스처링 (Texturing)
 밋밋한 단색 폴리곤에 사실적인 표면 질감을 입히는 과정입니다.
 
 개념: 3D 모델의 표면에 2D 이미지를 씌우는 기술입니다. 각 정점은 모델 표면의 어느 지점에 이미지의 어떤 부분이 매핑될지를 나타내는 UV 좌표(텍스처 좌표)를 가집니다.
@@ -30,7 +30,7 @@ HLSL 구현:
 
 Texture2D.Sample(SamplerState, UV_Coordinates) 함수를 호출하여 특정 UV 좌표의 텍스처 색상(텍셀)을 가져옵니다.
 
-3. 조명 (Lighting)
+## 3. 조명 (Lighting)
 조명은 3D 씬에 깊이와 현실감을 부여하는 가장 중요한 요소입니다. 가장 널리 쓰이는 **퐁 조명 모델(Phong Reflection Model)**을 기반으로 학습합니다.
 
 퐁 모델은 빛을 3가지 요소로 분해하여 계산합니다.
@@ -51,7 +51,7 @@ Specular = 빛의 색 * 반사광의 색 * pow(dot(카메라 방향 벡터, 빛 
 
 이 계산은 주로 픽셀 셰이더에서 각 픽셀 단위로 수행됩니다.
 
-4. 카메라와 변환 행렬
+## 4. 카메라와 변환 행렬
 3D 공간의 물체를 2D 화면에 표시하기 위해서는 여러 단계의 좌표계 변환이 필요하며, 이는 행렬 곱셈으로 이루어집니다.
 
 월드 변환 (World Transform): 모델의 고유 좌표계(로컬 공간)에서 3D 씬의 공통 좌표계(월드 공간)로 물체를 배치하는 변환입니다. 이동(Translate), 회전(Rotate), 크기(Scale) 행렬의 조합으로 만들어집니다.
@@ -61,7 +61,7 @@ Specular = 빛의 색 * 반사광의 색 * pow(dot(카메라 방향 벡터, 빛 
 투영 변환 (Projection Transform): 3D 뷰 공간을 2D 화면에 투영하는 변환입니다. 원근감을 표현하기 위해 주로 원근 투영(Perspective Projection) 행렬을 사용하며, 시야각(FOV), 종횡비(Aspect Ratio), 근접/원접 평면(Near/Far Plane)으로 정의됩니다.
 
 이 세 행렬(World, View, Projection)을 곱한 WVP 행렬을 정점 셰이더로 전달하여, 각 정점의 위치를 최종적인 2D 화면 좌표로 변환합니다.
-
+```cpp
 // C++ 에서의 행렬 계산 예시
 Matrix mWorld = Matrix::CreateRotationY(time) * Matrix::CreateTranslation(position);
 Matrix mView = Matrix::CreateLookAt(cameraPosition, cameraTarget, cameraUp);
@@ -70,8 +70,8 @@ Matrix mProjection = Matrix::CreatePerspectiveFieldOfView(fov, aspectRatio, near
 Matrix mWVP = mWorld * mView * mProjection;
 
 // 이 mWVP 행렬을 상수 버퍼를 통해 정점 셰이더로 전달
-
-5. 3D 모델 렌더링
+```
+## 5. 3D 모델 렌더링
 이제 직접 만든 정점 데이터 대신, 외부에서 제작된 3D 모델 파일을 불러와 렌더링하는 방법을 알아봅니다.
 
 메시(Mesh): 3D 모델을 구성하는 기본 단위로, 정점(Vertex) 데이터와 인덱스(Index) 데이터의 집합입니다.
