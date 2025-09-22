@@ -2,7 +2,8 @@
 
 This repository contains learning materials for shader programming.
 
-이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL(High-Level Shading Language)과 DirectX, Unity 엔진, Win32 등 다양한 환경에서 체계적으로 학습할 수 있도록 설계되었습니다. 
+이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL과 DirectX, Unity 엔진, Win32 등 다양한 환경에서 체계적으로 학습할 수 있도록 설계되었습니다. 
+셰이더나 그래픽스가 처음이라면 unity 환경에서 예제를 따라하며 기본기를 익히는 것을 추천합니다. 
 
 # 목차
 
