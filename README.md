@@ -2,242 +2,156 @@
 
 This repository contains learning materials for shader programming.
 
-이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL(High-Level Shading Language)과 DirectX 환경을 기반으로 체계적으로 학습할 수 있도록 설계되었습니다. 
+이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL(High-Level Shading Language)과 DirectX, Unity 엔진, Win32 등 다양한 환경에서 체계적으로 학습할 수 있도록 설계되었습니다. 
 
 # 목차
-## Basics
+
+<details>
+<summary> Basics </summary>
 
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 3)](./Shader%20Learning/Basics/4.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%203).md)
 
----
+</details>
 
-## Advanced
+---
+<details>
+<summary> Advanced </summary>
 
 * [실사 렌더링을 위한 PBR 셰이더 가이드](./Shader%20Learning/Adbanced/5.%20실사%20렌더링을%20위한%20PBR%20셰이더%20가이드%20.md)
 * [수많은 광원을 위한 Deferred Shading](./Shader%20Learning/Adbanced/6.%20수많은%20광원을%20위한%20Deferred%20Shading.md)
 * [GPU 기반 동적 지형 렌더링 테셀레이션 파이프라인](./Shader%20Learning/Adbanced/7.%20GPU%20기반%20동적%20지형%20렌더링%20테셀레이션%20파이프라인.md)
+
+</details>
+
+---
+
+<details>
+<summary> DirectX 11</summary>
+
+- [DirectX 11 학습 커리큘럼](./DirectX%2011%20학습%20커리큘럼.md)  
+- 단계별 학습  
+  - [DirectX 11 1단계](./Directx11/DirectX%2011%201단계.md)  
+  - [DirectX 11 2단계 (중급)](./Directx11/DirectX%2011%202단계%20중급.md)  
+  - [DirectX 11 3단계 (고급)](./Directx11/DirectX%2011%203단계%20고급.md)  
+
+</details>
+
+---
+
+<details>
+<summary> Unity Shader</summary>
+
+- [유니티 셰이더 커리큘럼](./Unity%20shader/유니티%20셰이더%20커리큘럼.md)  
+- [고급 셰이더 기술 심화 학습 로드맵](./Unity%20shader/고급%20셰이더%20기술%20심화%20학습%20로드맵.md)  
+- 학습 자료  
+  - [Part 1](./Unity%20shader/유니티%20셰이더%20Part%201%20학습%20자료이%20문서는%20'유니티%20셰이더.md)  
+  - [Part 2](./Unity%20shader/유니티%20셰이더%20Part%202%20학습%20자료.md)  
+  - [Part 3](./Unity%20shader/유니티%20셰이더%20Part%203%20학습%20자료.md)  
+  - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
+
+</details>
+
+---
+
+<details>
+<summary>🖥 Win32 / Win API</summary>
+
+- [0. Win32 학습 커리큘럼](./Win32/0.%20Win32%20학습%20커리큘럼.md)  
+- [1. Win API 학습 기초](./Win32/1.%20Win%20API%20학습%20기초.md)  
+- [2. Win API 그래픽, 입력 처리](./Win32/2.%20Win%20API%20그래픽,%20입력%20처리.md)  
+- [3. Win API 표준 컨트롤과 리소스 활용](./Win32/3.%20Win%20API%20학습%20표준%20컨트롤과%20리소스%20활용.md)  
+- [4. Win API 고급 시스템 프로그래밍](./Win32/4.%20Win%20API%20고급%20시스템%20프로그래밍.md)  
+- [Win API 예제 테스트 환경 활용 가이드](./Win32/Win%20API%20예제%20테스트%20환경%20활용%20가이드.md)  
+
+예제 코드  
+- [FileSearcher](./Win32/FileSearcher)  
+- [HelloWorld](./Win32/HelloWorld)  
+- [Notepad](./Win32/Notepad)  
+- [Paint](./Win32/Paint)  
+
+</details>
+
 ---
 
 # 선수 지식
-## C++ 프로그래밍 기초
+#### C++ 프로그래밍 기초
 
-3D 벡터 및 행렬에 대한 기본적인 이해 (선형대수학)
+#### 3D 벡터 및 행렬에 대한 기본적인 이해 (선형대수학)
 
-DirectX 또는 유사한 그래픽스 API 설정 및 기본 사용 경험 (권장)
-
----
-
-## Part 1: 셰이더 프로그래밍 입문 (1~4주차)
-### 1주차: 그래픽스 파이프라인과 셰이더의 역할
-학습 목표: 3D 이미지가 렌더링되는 과정을 이해하고, 각 단계에서 셰이더가 어떤 역할을 하는지 파악합니다.
-
-주요 내용:
-
-* 렌더링 파이프라인 (Rendering Pipeline) 개요
-
-* 입력 어셈블러 (IA), 정점 셰이더 (VS), 래스터라이저 (RS), 픽셀 셰이더 (PS), 출력 병합기 (OM)
-
-* HLSL 소개 및 기본 문법 (데이터 타입, 변수, 함수)
-
-* 첫 번째 셰이더 작성: 모델을 단색으로 칠하기
-
-* 상수 버퍼(Constant Buffer)의 개념과 활용
-
-### 2주차: 기본 조명 모델 (퐁 조명)
-학습 목표: 빛의 요소를 분해하여 3D 모델에 입체감을 부여하는 원리를 학습합니다.
-
-주요 내용:
-
-* 광원(Light Source)의 종류: 방향광(Directional), 점광원(Point), 스포트라이트(Spot)
-
-* 퐁 조명 모델 (Phong Lighting Model)
- 
-* Ambient (환경광): 은은하게 전체를 비추는 빛
- 
-* Diffuse (난반사광): 빛의 방향에 따라 밝기가 변하는 빛
- 
-* Specular (정반사광): 시점과 빛의 각도에 따라 반짝이는 하이라이트
- 
-* 법선 벡터(Normal Vector)의 중요성과 변환
- 
-* 정점 셰이더 vs 픽셀 셰이더 조명 계산의 차이 (Gouraud vs Phong Shading)
-
-### 3주차: 텍스처 매핑 (Texture Mapping)
-학습 목표: 2D 이미지를 3D 모델 표면에 입혀 사실감을 더하는 방법을 배웁니다.
-
-주요 내용:
-
-* 텍스처 좌표 (UV Coordinates)의 이해
-
-* 텍스처와 샘플러 (Texture & Sampler) 객체
-
-* HLSL에서 텍스처 샘플링하기 (Texture2D.Sample)
-
-* 텍스처 필터링 (Filtering): Point, Linear
-
-* 텍스처 어드레스 모드 (Address Mode): Wrap, Clamp, Mirror, Border
-
-### 4주차: 미니 프로젝트 #1 - 조명과 텍스처를 가진 3D 모델 렌더링
-학습 목표: 이전까지 배운 내용을 종합하여 하나의 완성된 셰이더를 작성합니다.
-
-* 프로젝트 내용:
-
-* 3D 모델 (예: .obj, .fbx)을 로드
-
-* 퐁 조명 모델을 적용하여 입체감 표현
-
-* 모델에 텍스처를 매핑하여 렌더링
-
-* 카메라 이동 및 모델 회전 기능 구현
+#### DirectX 또는 유사한 그래픽스 API 설정 및 기본 사용 경험 (권장)
 
 ---
 
-## Part 2: 중급 셰이딩 기법 (5~9주차)
-### 5주차: 고급 조명 기법
-학습 목표: 퐁 조명 모델을 넘어 더 사실적인 재질을 표현하는 방법을 탐구합니다.
 
-주요 내용:
 
-* 블린-퐁 조명 모델 (Blinn-Phong): Specular 계산 최적화
 
-* 재질 (Material) 시스템 구현: 각기 다른 Ambient, Diffuse, Specular 속성을 가진 물체 표현
+## Part 1: 셰이더 프로그래밍 입문 (1~4챕터)
+#### 1챕터: 그래픽스 파이프라인과 셰이더의 역할
 
-* 감쇠 (Attenuation): 거리에 따라 빛의 세기가 약해지는 효과
+#### 2챕터: 기본 조명 모델 (퐁 조명)
 
-### 6주차: 노멀 매핑 (Normal Mapping)
-학습 목표: 저해상도 모델에 고해상도 모델의 표면 디테일을 표현하여 성능과 품질을 모두 잡는 기술을 배웁니다.
 
-주요 내용:
+#### 3챕터: 텍스처 매핑 (Texture Mapping)
 
-* 노멀 맵이란? (텍스처에 법선 정보를 저장)
 
-* 탄젠트 공간 (Tangent Space): T, B, N 벡터
+#### 4챕터: 미니 프로젝트 #1 - 조명과 텍스처를 가진 3D 모델 렌더링
 
-* 정점 셰이더에서 탄젠트 공간 계산하기
-
-* 픽셀 셰이더에서 노멀 맵을 샘플링하여 조명 계산에 활용하기
-
-### 7주차: 그림자 매핑 (Shadow Mapping)
-학습 목표: 장면에 깊이감과 사실감을 더하는 핵심 기술인 동적 그림자를 구현합니다.
-
-주요 내용:
-
-* 그림자 매핑의 기본 원리 (Light's-Point-of-View)
-
-* 1단계: 광원 시점에서 깊이 맵(Depth Map) 렌더링
-
-* 2단계: 본 렌더링에서 픽셀의 깊이와 깊이 맵의 값을 비교하여 그림자 여부 판단
-
-* 그림자 편향 (Shadow Bias)과 PCF (Percentage-Closer Filtering)를 이용한 품질 개선
-
-### 8주차: 반사 및 환경 매핑
-학습 목표: 주변 환경을 물체 표면에 반사시켜 금속이나 거울 같은 재질을 표현합니다.
-
-주요 내용:
-
-* 큐브맵 (Cubemap)을 이용한 스카이박스 (Skybox) 구현
-
-* 환경 매핑 (Environment Mapping): 입사 벡터와 법선 벡터를 이용해 반사 벡터 계산
-
-* 굴절 (Refraction) 효과 시뮬레이션
-
-### 9주차: 미니 프로젝트 #2 - 고급 셰이더 효과 통합
-학습 목표: 중급 과정에서 배운 여러 기술을 하나의 장면에 통합하여 시각적 품질을 높입니다.
-
-프로젝트 내용:
-
-* 노멀 맵을 사용하는 캐릭터 또는 배경 모델 렌더링
-
-* 실시간 그림자 효과 적용
-
-* 금속 재질의 물체에 환경 맵 반사 효과 구현
 
 ---
 
-## Part 3: 고급 셰이더 및 최적화 (10~14주차)
-### 10주차: 후처리 효과 (Post-Processing)
-학습 목표: 렌더링이 완료된 장면에 전체적으로 적용되는 필터 효과를 구현합니다.
+## Part 2: 중급 셰이딩 기법 (5~9챕터)
+#### 5챕터: 고급 조명 기법
 
-주요 내용:
 
-* 렌더 타겟 (Render Target)의 개념
+#### 6챕터: 노멀 매핑 (Normal Mapping)
 
-* 블룸 (Bloom) 효과: 밝은 빛이 번져 보이는 효과
 
-* 피사계 심도 (Depth of Field)
+#### 7챕터: 그림자 매핑 (Shadow Mapping)
 
-* 모션 블러 (Motion Blur)
 
-* 톤 매핑 (Tone Mapping) 및 색상 보정 (Color Grading)
+#### 8챕터: 반사 및 환경 매핑
 
-### 11주차: 지오메트리 & 테셀레이션 셰이더
-학습 목표: GPU를 이용해 실시간으로 정점을 생성하거나 변형하여 디테일을 높이는 방법을 배웁니다.
 
-주요 내용:
+#### 9챕터: 미니 프로젝트 #2 - 고급 셰이더 효과 통합
 
-* 지오메트리 셰이더 (Geometry Shader): 정점/선을 면으로 확장 (파티클 생성, 외곽선 렌더링)
-
-* 헐 셰이더 (Hull Shader) & 도메인 셰이더 (Domain Shader): 테셀레이션(Tessellation) 파이프라인
-
-* LOD (Level of Detail)를 동적으로 조절하여 원거리 모델의 폴리곤 줄이기
-
-### 12주차: 컴퓨트 셰이더 (Compute Shader)
-학습 목표: 렌더링 파이프라인에서 벗어나 GPU를 일반적인 병렬 연산에 활용하는 방법을 배웁니다. (GPGPU)
-
-주요 내용:
-
-* 컴퓨트 셰이더의 개념과 스레드 모델 (Thread, Group)
-
-* UAV (Unordered Access View)를 이용한 데이터 입출력
-
-* 활용 예시: 파티클 시뮬레이션, 이미지 처리, 물리 연산 가속
-
-### 13주차: 셰이더 최적화
-학습 목표: 셰이더 코드의 성능을 분석하고 개선하는 방법을 학습합니다.
-
-주요 내용:
-
-* 프로파일링 도구 사용법 (PIX, RenderDoc)
-
-* 셰이더 연산 줄이기: 산술 연산 최적화, 불필요한 계산 제거
-
-* 분기 (if/else) 줄이기와 그 영향
-
-* 텍스처 포맷과 샘플링 최적화
-
-### 14주차: 최종 프로젝트 - 자신만의 셰이더 기술 데모 제작
-학습 목표: 커리큘럼에서 배운 모든 지식을 동원하여 자신만의 창의적인 3D 그래픽 데모를 만듭니다.
-
-프로젝트 아이디어:
-
-* PBR (Physically Based Rendering) 셰이더 간략화 버전 구현
-
-* 컴퓨트 셰이더를 이용한 유체 또는 천 시뮬레이션
-
-* 다양한 후처리 효과를 조합한 스타일리쉬 렌더링 데모
-
-* 테셀레이션을 이용한 동적 지형 렌더링
 
 ---
 
-####  추천 자료 및 도구
+## Part 3: 고급 셰이더 및 최적화 (10~14챕터)
+#### 10챕터: 후처리 효과 (Post-Processing)
+
+
+#### 11챕터: 지오메트리 & 테셀레이션 셰이더
+
+#### 12챕터: 컴퓨트 셰이더 (Compute Shader)
+
+
+#### 13챕터: 셰이더 최적화
+
+
+#### 14챕터: 최종 프로젝트 - 자신만의 셰이더 기술 데모 제작
+
+
+---
+
+#####  추천 자료 및 도구
 * 개발 환경: Visual Studio
 
 * 디버깅/프로파일링: PIX for Windows, RenderDoc
 
-참고 서적:
+##### 참고 서적
 
 * "Introduction to 3D Game Programming with DirectX 12" (Frank D. Luna)
 
 * "Real-Time Rendering"
 
-온라인 자료:
+##### 온라인 자료
 
 * ShaderToy: 다른 사람들의 셰이더 코드를 보고 배우기 좋은 사이트
 
-* Catlike Coding: (Unity 기반이지만 원리 이해에 큰 도움이 됨)
+* Catlike Coding: (Unity 기반, 원리 이해에 큰 도움이 됨)
 
 * Microsoft DirectX Graphics-Samples
