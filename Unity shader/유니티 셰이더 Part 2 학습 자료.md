@@ -3,6 +3,84 @@
 
 ## 5챕터: 기본 조명 모델
 
+### Lambert, Phong, Blinn-Phong 모델과 코사인 관계
+
+컴퓨터 그래픽스에서 Lambert, Phong, Blinn-Phong 모델은 표면의 빛 반사를 단순화해서 표현하는 대표적인 조명 모델입니다.  
+아래에서 코사인과 벡터 내적 관점에서 연결하여 정리합니다.
+
+#### 1. Lambert 모델 (확산 반사)
+
+- 식
+```math
+I_{diffuse} = k_d I_L \max(0, \mathbf{N}\cdot\mathbf{L})
+````
+
+* 벡터 관계
+  $\mathbf{N}\cdot\mathbf{L} = \|\mathbf{N}\|\|\mathbf{L}\|\cos\theta = \cos\theta$ (단위벡터 기준)
+* 설명: 표면 법선과 광원 방향 사이의 각도의 코사인이 밝기 결정
+* 특징: 매트 표면, 하이라이트 없음
+
+---
+
+#### 2. Phong 모델 (정반사 포함)
+
+* 식
+
+```math
+I = k_d I_L \max(0, \mathbf{N}\cdot\mathbf{L}) + k_s I_L \max(0, \mathbf{R}\cdot\mathbf{V})^n
+```
+
+* 벡터 관계
+
+  * 확산: $\mathbf{N}\cdot\mathbf{L} = \cos\theta$ (Lambert와 동일)
+  * 정반사: $\mathbf{R}\cdot\mathbf{V} = \cos\phi$, $\phi$ = 반사 벡터와 시선 벡터 사이 각
+* 특징: 광택, 하이라이트 표현 가능
+* 단점: $\mathbf{R}$ 계산 필요 → 계산량 증가
+
+---
+
+#### 3. Blinn-Phong 모델 (효율적인 정반사)
+
+* Phong의 반사 벡터 대신 하프 벡터(Half Vector) 사용
+
+$$
+\mathbf{H} = \frac{\mathbf{L} + \mathbf{V}}{\|\mathbf{L} + \mathbf{V}\|}
+$$
+
+* 식:
+
+```math
+I_{specular} = k_s I_L \max(0, \mathbf{N}\cdot\mathbf{H})^n
+```
+
+* 벡터 관계
+
+  * $\mathbf{N}\cdot\mathbf{H} = \cos\alpha$, $\alpha$ = 법선과 하프벡터 사이 각
+  * 하프벡터는 시선과 광원의 중간 방향 → 법선과 반사 벡터가 이루는 각을 효율적으로 근사
+* 장점
+
+  * Phong과 비슷한 하이라이트를 더 적은 연산으로 구현 가능
+  * $\mathbf{R}\cdot\mathbf{V}$ 계산 필요 없음 → 하프벡터 내적 한 번으로 충분
+
+---
+
+#### 4. 비교 요약 (벡터 내적 / 코사인 관점)
+
+| 모델          | 확산(diffuse)                              | 정반사(specular)                                  | 내적 / 코사인 사용 |
+| ----------- | ---------------------------------------- | ---------------------------------------------- | ----------- |
+| Lambert     | $\mathbf{N}\cdot\mathbf{L} = \cos\theta$ | 없음                                             | 법선-광원 각     |
+| Phong       | $\mathbf{N}\cdot\mathbf{L} = \cos\theta$ | $(\mathbf{R}\cdot\mathbf{V})^n = \cos^n\phi$   | 반사-시선 각     |
+| Blinn-Phong | $\mathbf{N}\cdot\mathbf{L} = \cos\theta$ | $(\mathbf{N}\cdot\mathbf{H})^n = \cos^n\alpha$ | 법선-하프벡터 각   |
+
+---
+
+#### 핵심 정리
+1. Lambert → 단순 확산, 코사인 법칙 적용
+2. Phong → 확산 + 정반사, 내적으로 시선-반사 벡터 각 표현
+3. Blinn-Phong → Phong 정반사를 하프 벡터 내적으로 근사 → 연산 효율 ↑
+
+---
+
 `조명의 3요소`
 컴퓨터 그래픽스에서 조명은 주로 세 가지 요소의 조합으로 표현됩니다.
 
