@@ -48,7 +48,7 @@ This repository contains learning materials for shader programming.
 - [유니티 셰이더 커리큘럼](./Unity%20shader/유니티%20셰이더%20커리큘럼.md)  
 - [고급 셰이더 기술 심화 학습 로드맵](./Unity%20shader/고급%20셰이더%20기술%20심화%20학습%20로드맵.md)  
 - 학습 자료  
-  - [Part 1](./Unity%20shader/유니티%20셰이더%20Part%201%20학습%20자료이%20문서는%20'유니티%20셰이더.md)  
+  - [Part 1](./Unity%20shader/유니티%20셰이더%20Part%201%20학습%20자료.md)  
   - [Part 2](./Unity%20shader/유니티%20셰이더%20Part%202%20학습%20자료.md)  
   - [Part 3](./Unity%20shader/유니티%20셰이더%20Part%203%20학습%20자료.md)  
   - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
