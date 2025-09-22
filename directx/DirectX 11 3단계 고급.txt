@@ -1,0 +1,181 @@
+DirectX 11 학습 3단계: 고급 (심화 기술 및 최적화)
+목표
+DirectX 11의 고급 렌더링 파이프라인을 완벽하게 이해하고, 테셀레이션, 컴퓨트 셰이더 등 최신 기술을 활용하여 렌더링 품질을 극대화합니다. 동시에 대규모 씬을 효율적으로 처리하기 위한 다양한 최적화 기법을 습득하여 실시간 렌더링 전문가로 거듭나는 것을 목표로 합니다.
+
+1. 고급 렌더링 기법
+기존의 렌더링 파이프라인을 넘어, GPU의 잠재력을 최대로 활용하는 기술들입니다.
+
+인스턴싱 (Instancing)
+
+개념: 수천 개의 나무, 풀, 총알 등 동일한 메시(Mesh)를 화면에 렌더링할 때, 각 객체마다 Draw 명령을 호출하는 것은 매우 비효율적입니다. 인스턴싱은 단 한 번의 DrawInstanced 호출로 동일한 메시를 여러 번 렌더링하는 기술입니다.
+
+구현: 각 인스턴스별로 달라지는 데이터(월드 행렬, 색상 등)를 별도의 정점 버퍼(인스턴스 버퍼)에 저장하고, 셰이더에서 SV_InstanceID 시맨틱을 사용하여 각 인스턴스 데이터에 접근합니다. CPU의 부하를 획기적으로 줄여줍니다.
+
+테셀레이션 (Tessellation)
+
+개념: 낮은 폴리곤 모델을 GPU에서 실시간으로 수많은 삼각형으로 세분화하여 매우 상세한 지오메트리를 표현하는 기술입니다. 밋밋한 평면에 실제와 같은 울퉁불퉁한 지형이나 부드러운 곡면을 표현할 때 강력한 힘을 발휘합니다.
+
+파이프라인: DirectX 11은 테셀레이션을 위해 3개의 새로운 파이프라인 스테이지를 도입했습니다.
+
+Hull Shader (HS): 입력된 제어점(Control Points)을 바탕으로 패치(Patch)를 어떻게, 얼마나 나눌지(Tessellation Factors) 결정합니다.
+
+Tessellator: Hull Shader의 지시에 따라 패치를 실제로 잘게 나눕니다. 이 단계는 고정 함수 하드웨어로 프로그래밍이 불가능합니다.
+
+Domain Shader (DS): Tessellator에 의해 생성된 각각의 새로운 정점의 최종 위치를 계산합니다. 주로 디스플레이스먼트 맵(Displacement Map)을 참조하여 표면의 높낮이를 결정합니다.
+
+지오메트리 셰이더 (Geometry Shader)
+
+개념: 정점 셰이더 다음, 픽셀 셰이더 이전에 실행되며, 입력받은 프리미티브(점, 선, 삼각형)를 기반으로 새로운 프리미티브를 동적으로 생성하거나 제거할 수 있습니다.
+
+활용: 파티클 시스템에서 점 하나를 사각형 빌보드로 확장하거나, 큐브의 각 면에 대한 텍스처를 한 번에 렌더링(큐브맵 렌더링)하는 등 다양한 특수 효과에 사용됩니다.
+
+컴퓨트 셰이더 (Compute Shader)
+
+개념: 렌더링 파이프라인과 독립적으로 GPU의 막강한 병렬 처리 능력을 범용 계산(GPGPU)에 활용하는 기술입니다.
+
+활용: 그래픽 렌더링뿐만 아니라 물리 시뮬레이션, 이미지 후처리, 인공지능 연산 등 방대한 데이터를 병렬로 처리해야 하는 모든 작업에 사용될 수 있습니다.
+
+2. 실시간 렌더링 심화
+더욱 사실적이고 복잡한 씬을 효율적으로 렌더링하기 위한 고급 렌더링 아키텍처입니다.
+
+지연 셰이딩 (Deferred Shading)
+
+개념: 기존의 포워드 셰이딩(Forward Shading)이 모든 오브젝트에 대해 모든 조명 계산을 하는 것과 달리, 지연 셰이딩은 연산을 두 단계로 나눕니다.
+
+1단계 (Geometry Pass): 씬의 모든 오브젝트를 렌더링하되, 조명 계산은 하지 않습니다. 대신 화면 공간에서의 위치, 법선, 색상 등 조명 계산에 필요한 정보들을 여러 장의 텍스처(이를 G-Buffer라 함)에 저장합니다.
+
+2단계 (Lighting Pass): 화면 크기의 사각형 하나만 렌더링하면서, G-Buffer를 참조하여 각 픽셀의 조명을 계산합니다. 오브젝트 수와 무관하게 조명 계산량이 화면 해상도에만 의존하므로, 수백, 수천 개의 동적 조명을 효율적으로 처리할 수 있습니다.
+
+장단점: 다중 광원 환경에 매우 강력하지만, 투명 객체 처리가 복잡하고 하드웨어 MSAA를 직접 사용할 수 없는 단점이 있습니다.
+
+그림자 매핑 (Shadow Mapping)
+
+개념: 3D 씬에 사실적인 그림자를 생성하는 가장 일반적인 기법입니다.
+
+구현: 씬을 광원의 시점에서 렌더링하여, 광원으로부터 각 픽셀까지의 깊이(거리) 정보를 텍스처(Shadow Map)에 저장합니다. 그 후, 실제 카메라 시점에서 씬을 렌더링할 때 각 픽셀의 월드 좌표를 광원 시점의 좌표로 변환하고, 계산된 깊이 값과 섀도우 맵에 저장된 값을 비교합니다. 현재 픽셀이 섀도우 맵의 값보다 광원으로부터 더 멀리 있다면, 그 픽셀은 다른 물체에 의해 가려진 것이므로 그림자 처리합니다.
+
+3. 성능 최적화
+아무리 뛰어난 기술이라도 프레임 속도가 나오지 않으면 소용없습니다. 렌더링 성능을 향상시키는 핵심 전략입니다.
+
+드로우 콜 (Draw Call) 줄이기: CPU가 GPU에게 '이것을 그려라'라고 명령하는 것이 드로우 콜입니다. 이 과정은 상당한 오버헤드를 유발하므로, 인스턴싱, 스태틱/다이나믹 배칭 등의 기법을 통해 드로우 콜 횟수 자체를 줄이는 것이 최적화의 제1 원칙입니다.
+
+GPU 프로파일링: PIX for Windows 같은 프로파일링 도구를 사용하여 GPU의 작업 내용을 프레임 단위로 분석할 수 있습니다. 어떤 셰이더가 시간을 많이 소모하는지, 파이프라인의 어느 단계에서 병목 현상이 발생하는지 등을 파악하여 최적화 대상을 정확히 찾아내야 합니다.
+
+멀티스레드 렌더링: DirectX 11은 멀티스레딩을 지원합니다. 주 렌더링 스레드 외에 여러 작업 스레드에서 렌더링 명령 목록(Command List)을 미리 만들어두고(Deferred Context), 주 스레드에서는 이 목록들을 실행(ExecuteCommandList)만 함으로써 CPU 병목 현상을 완화하고 여러 CPU 코어를 효율적으로 활용할 수 있습니다.
+
+```hlsl
+// 테셀레이션을 위한 HLSL 예제 (디스플레이스먼트 매핑)
+
+// 필요한 상수 버퍼들
+cbuffer CbChangesEveryFrame : register(b0)
+{
+    matrix World;
+    matrix View;
+    matrix Projection;
+};
+
+cbuffer CbTessellationInfo : register(b1)
+{
+    float TessellationAmount;
+    float3 padding;
+};
+
+// 디스플레이스먼트 맵(높이 맵)과 텍스처
+Texture2D txDisplacement : register(t0);
+Texture2D txDiffuse : register(t1);
+SamplerState samLinear : register(s0);
+
+
+struct VS_INPUT
+{
+    float3 Pos   : POSITION;
+    float3 Norm  : NORMAL;
+    float2 Tex   : TEXCOORD0;
+};
+
+// Hull Shader의 제어점(Control Point) 출력 구조체
+struct HS_CONTROL_POINT_OUTPUT
+{
+    float3 WorldPos : WORLDPOS;
+    float3 Norm     : NORMAL;
+    float2 Tex      : TEXCOORD;
+};
+
+// Hull Shader의 패치 상수 데이터 출력 구조체
+struct HS_CONSTANT_DATA_OUTPUT
+{
+    float Edges[3] : SV_TessFactor;
+    float Inside   : SV_InsideTessFactor;
+};
+
+// 정점 셰이더 (제어점을 Hull Shader로 전달)
+HS_CONTROL_POINT_OUTPUT VS(VS_INPUT input)
+{
+    HS_CONTROL_POINT_OUTPUT output;
+    output.WorldPos = mul(float4(input.Pos, 1.0f), World).xyz;
+    output.Norm = mul(input.Norm, (float3x3)World);
+    output.Tex = input.Tex;
+    return output;
+}
+
+// Hull Shader 상수 함수 (패치 당 한 번 실행)
+// 얼마나 세분화할지 결정
+HS_CONSTANT_DATA_OUTPUT PatchConstantFunction(InputPatch<HS_CONTROL_POINT_OUTPUT, 3> inputPatch, uint patchId : SV_PrimitiveID)
+{
+    HS_CONSTANT_DATA_OUTPUT output;
+    
+    // 간단하게 고정된 양으로 테셀레이션
+    output.Edges[0] = output.Edges[1] = output.Edges[2] = TessellationAmount;
+    output.Inside = TessellationAmount;
+    
+    return output;
+}
+
+// Hull Shader 메인 함수 (제어점 당 한 번 실행)
+[domain("tri")]
+[partitioning("integer")]
+[outputtopology("triangle_cw")]
+[outputcontrolpoints(3)]
+[patchconstantfunc("PatchConstantFunction")]
+HS_CONTROL_POINT_OUTPUT HS(InputPatch<HS_CONTROL_POINT_OUTPUT, 3> patch, uint i : SV_OutputControlPointID, uint patchId : SV_PrimitiveID)
+{
+    // 제어점을 그대로 통과
+    return patch[i];
+}
+
+// Domain Shader (테셀레이터가 생성한 새 정점마다 실행)
+[domain("tri")]
+PS_INPUT DS(HS_CONSTANT_DATA_OUTPUT input, float3 domain : SV_DomainLocation, const OutputPatch<HS_CONTROL_POINT_OUTPUT, 3> patch)
+{
+    PS_INPUT output;
+
+    // 무게중심 좌표계를 이용해 위치, 법선, UV 보간
+    float3 worldPos = domain.x * patch[0].WorldPos + domain.y * patch[1].WorldPos + domain.z * patch[2].WorldPos;
+    float3 normal = normalize(domain.x * patch[0].Norm + domain.y * patch[1].Norm + domain.z * patch[2].Norm);
+    float2 texCoord = domain.x * patch[0].Tex + domain.y * patch[1].Tex + domain.z * patch[2].Tex;
+
+    // 디스플레이스먼트 맵에서 높이 값을 읽어와 법선 방향으로 정점을 이동
+    float displacement = txDisplacement.SampleLevel(samLinear, texCoord, 0).r;
+    worldPos += (normal * displacement * 0.1f); // 0.1f는 강도 조절
+
+    // 최종 위치 변환
+    output.Pos = mul(float4(worldPos, 1.0f), View);
+    output.Pos = mul(output.Pos, Projection);
+
+    // 픽셀 셰이더로 데이터 전달
+    output.Norm = normal;
+    output.Tex = texCoord;
+    output.WorldPos = worldPos;
+
+    return output;
+}
+
+
+// 픽셀 셰이더는 2단계의 조명 셰이더와 거의 동일하게 사용 가능
+// (PS_INPUT 구조체는 Domain Shader의 출력과 일치해야 함)
+float4 PS(PS_INPUT input) : SV_Target
+{
+    // ... 조명 계산 ...
+    return txDiffuse.Sample(samLinear, input.Tex); // 간단하게 텍스처 색상만 출력
+}
+```
