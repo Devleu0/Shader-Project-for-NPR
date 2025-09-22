@@ -90,17 +90,14 @@ I_{specular} = k_s I_L \max(0, \mathbf{N}\cdot\mathbf{H})^n
 
 `Specular (정반사)`: 빛이 특정 방향으로 강하게 반사되는 현상입니다. 매끄러운 표면에서 하이라이트(반짝임)를 만듭니다.
 
-`램버트 (Lambert) 조명 모델`
-난반사를 계산하는 가장 간단하고 일반적인 모델입니다. 표면이 받는 빛의 양은 표면의 법선(Normal) 방향과 광원(Light)의 방향 사이의 각도에 따라 결정된다는 원리를 이용합니다. 이 각도는 두 벡터의 내적(Dot Product)으로 쉽게 계산할 수 있습니다.
-
-`Dot(Normal, Light Direction)` 결과가 1이면 빛을 정면으로 받는 것이고, 0이면 90도로 비껴 맞는 것, 음수이면 뒷면을 향하는 것입니다.
+`Dot(Normal, Light Direction)` 내적, 결과가 1이면 빛을 정면으로 받는 것이고, 0이면 90도로 비껴 맞는 것, 음수이면 뒷면을 향하는 것입니다.
 
 `saturate() 함수`를 이용해 0과 1 사이의 값으로 만들어 빛의 감쇠량으로 사용합니다.
 
 `법선 벡터 (Normal Vector)`
 3D 모델의 각 정점(또는 면)이 바라보는 방향을 나타내는 단위 벡터입니다. 조명 계산의 핵심 요소로, 이 벡터가 있어야 빛과 표면의 각도를 계산할 수 있습니다. 법선 벡터는 보통 오브젝트 공간(Object Space)에 저장되어 있으므로, 조명 계산을 위해서는 월드 공간(World Space)으로 변환해야 합니다.
 
-과제 가이드
+
 URP의 기본 방향 광원(Directional Light)을 기준으로 램버트 조명 모델을 구현하는 Unlit 셰이더 코드입니다. URP에서는 셰이더가 조명 정보를 자동으로 받기 위해 특정 규칙을 따라야 합니다.
 ```c
 // 유니티 셰이더 파일: SimpleLambert.shader
@@ -189,7 +186,7 @@ Shader "MyShaders/SimpleLambert"
 
 `pow(saturate(dot(normalWS, halfwayDir)), _Shininess)`: 법선과 절반 벡터가 얼마나 일치하는지를 계산하여 하이라이트의 강도를 결정합니다. _Shininess 값으로 반짝임의 집중도를 조절합니다.
 
-과제 가이드
+
 5챕터 코드에 Blinn-Phong 정반사 계산을 추가한 코드입니다.
 ```c
 // 셰이더 경로: "MyShaders/SimpleBlinnPhong"
@@ -247,7 +244,7 @@ half4 frag (Varyings IN) : SV_Target
 
 `clip(value)`: HLSL 내장 함수로, value가 0보다 작으면 해당 픽셀의 렌더링을 중단합니다.
 
-과제 가이드
+
 1. 반투명 유리 셰이더
 ```c
 Shader "MyShaders/TransparentGlass"
