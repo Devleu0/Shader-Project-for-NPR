@@ -2,34 +2,34 @@
 이 문서는 '유니티 셰이더 16주 완성 커리큘럼'의 Part 1 학습 자료입니다. 코드 예제를 통해 셰이더의 기초를 탄탄히 다지는 것을 목표로 합니다.
 
 ## 1챕터: 그래픽스 파이프라인 입문
-핵심 개념 상세
+
 ### 셰이더 (Shader) 란?
 셰이더는 GPU(그래픽 처리 장치)에서 실행되도록 작성된 프로그램입니다. 화면에 픽셀 하나를 어떤 색으로 그릴지, 3D 모델의 정점을 어디에 위치시킬지 등 그래픽 렌더링의 거의 모든 과정을 제어합니다. CPU가 게임 로직, 물리 계산 등 일반적인 연산을 담당한다면, GPU는 셰이더를 통해 수많은 픽셀과 정점을 동시에 병렬로 처리하는 데 특화되어 있습니다.
 
-### 렌더링 파이프라인 (Rendering Pipeline)
+## 렌더링 파이프라인 (Rendering Pipeline)
 3D 모델 데이터가 화면에 그려지기까지 거치는 일련의 단계를 의미합니다. 파이프라인처럼 데이터가 한 방향으로 흐르며 각 단계에서 처리됩니다.
 
-### Application Stage (CPU): 
+#### Application Stage 
 렌더링 할 오브젝트 결정, 컬링(Culling, 보이지 않는 오브젝트 제외), 드로우 콜(Draw Call, GPU에 렌더링 명령) 등 준비 작업을 합니다.
 
-### Vertex Shader Stage (GPU): 
+#### Vertex Shader Stage 
 각 정점(Vertex)의 위치를 3D 공간에서 화면의 2D 좌표로 변환합니다. 정점의 색상이나 UV 좌표를 계산하기도 합니다.
 
-### Rasterization Stage (GPU): 
+#### Rasterization Stage 
 정점 셰이더에서 변환된 정점들을 연결하여 삼각형(폴리곤)을 만들고, 이 삼각형이 화면의 어떤 픽셀을 덮을지 결정합니다.
 
-### Fragment Shader Stage (GPU): 
+#### Fragment Shader Stage
 래스터라이제이션 단계에서 결정된 각 픽셀(프래그먼트)의 최종 색상을 계산합니다. 텍스처를 입히고 조명을 계산하는 등 가장 복잡한 작업이 주로 여기서 이루어집니다.
 
 ## 유니티 렌더링 파이프라인 종류
-`
-Built-in Render Pipeline`: 가장 전통적인 방식의 파이프라인입니다. 유연성이 낮아 최근에는 잘 사용되지 않습니다.
+
+`Built-in Render Pipeline`: 가장 전통적인 방식의 파이프라인입니다. 유연성이 낮아 최근에는 잘 사용되지 않습니다.
 
 `URP (Universal Render Pipeline)`: 모바일과 PC 등 다양한 플랫폼에서 높은 성능을 내도록 설계된 최신 파이프라인입니다. 스크립터블(Scriptable) 방식으로 커스터마이징이 용이합니다.
 
 `HDRP (High Definition Render Pipeline)`: 고사양 PC와 콘솔을 타겟으로, 최고 수준의 그래픽 품질을 제공하는 파이프라인입니다.
 
-`과제 가이드`
+
 URP 프로젝트 생성은 'Unity Hub'에서 새 프로젝트를 생성할 때 템플릿 목록에서 '3D (URP)'를 선택하면 간단히 완료됩니다. 프로젝트가 생성되면 Assets/Settings 폴더에서 URP 에셋 파일을 찾아 Project Settings > Graphics의 'Scriptable Render Pipeline Settings'에 할당되어 있는지 확인해보세요.
 
 ## 2챕터: 첫 셰이더와 ShaderLab
@@ -58,7 +58,6 @@ Shader "MyShaders/SimpleUnlit" // 셰이더의 경로와 이름
 
 'Unlit'은 '조명 없는'이라는 뜻으로, 조명의 영향을 받지 않고 지정된 색상이나 텍스처를 그대로 출력하는 가장 기본적인 셰이더입니다.
 
-`과제 가이드`
 
 아래는 과제를 위한 전체 코드 예시입니다. Project 창에서 Create > Shader > Unlit Shader로 파일을 생성하고 내용을 아래 코드로 교체한 뒤, 새 머티리얼(Material)을 만들어 이 셰이더를 적용하고 3D 오브젝트에 할당해보세요.
 ```c
@@ -119,18 +118,18 @@ Shader "MyShaders/SimpleColor"
 
 DirectX 기반의 셰이딩 언어로, C와 유사한 문법을 가집니다. 유니티는 내부적으로 HLSL을 사용합니다.
 
-데이터 타입: float (32비트 실수), half (16비트 실수, 정확도 낮지만 빠름), fixed (11비트 고정소수점, 저사양 모바일용). float4는 4개의 float 값을 가진 벡터(예: rgba 색상), float4x4는 4x4 행렬을 의미합니다.
+* 데이터 타입: float (32비트 실수), half (16비트 실수, 정확도 낮지만 빠름), fixed (11비트 고정소수점, 저사양 모바일용). float4는 4개의 float 값을 가진 벡터(예: rgba 색상), float4x4는 4x4 행렬을 의미합니다.
 
-좌표 공간 변환 (Coordinate Space Transformation)
+#### 좌표 공간 변환 (Coordinate Space Transformation)
 그래픽스에서 가장 중요한 개념 중 하나입니다. 정점 데이터는 여러 좌표 공간을 거쳐 최종적으로 화면에 표시됩니다.
 
-오브젝트 공간 (Object/Local Space): 모델링 프로그램에서 만든 모델 원점(0,0,0) 기준의 좌표계.
+* 오브젝트 공간 (Object/Local Space): 모델링 프로그램에서 만든 모델 원점(0,0,0) 기준의 좌표계.
 
-월드 공간 (World Space): 유니티 씬의 중심(0,0,0) 기준의 좌표계. 오브젝트의 위치, 회전, 크기 변환이 적용된 후의 좌표입니다.
+* 월드 공간 (World Space): 유니티 씬의 중심(0,0,0) 기준의 좌표계. 오브젝트의 위치, 회전, 크기 변환이 적용된 후의 좌표입니다.
 
-뷰 공간 (View/Camera Space): 카메라의 위치가 원점(0,0,0)이 되는 좌표계. 카메라 시점에서 본 상대적인 위치입니다.
+* 뷰 공간 (View/Camera Space): 카메라의 위치가 원점(0,0,0)이 되는 좌표계. 카메라 시점에서 본 상대적인 위치입니다.
 
-클립 공간 (Clip Space/Homogeneous Clip Space): 카메라의 시야각(FOV)과 절단 평면(Clipping Planes)을 고려하여 화면에 보일 영역(-1에서 1 사이의 값으로 정규화)을 결정하는 4차원 좌표계. 이 공간 밖의 정점은 잘려나갑니다.
+* 클립 공간 (Clip Space/Homogeneous Clip Space): 카메라의 시야각(FOV)과 절단 평면(Clipping Planes)을 고려하여 화면에 보일 영역(-1에서 1 사이의 값으로 정규화)을 결정하는 4차원 좌표계. 이 공간 밖의 정점은 잘려나갑니다.
 
 UNITY_MATRIX_MVP (Built-in) / TransformObjectToHClip() (URP): 이 행렬(또는 함수)은 정점 위치를 오브젝트 공간에서 클립 공간으로 한 번에 변환해주는 마법 같은 도구입니다. (Model * View * Projection 행렬의 곱)
 
@@ -205,3 +204,60 @@ Shader "MyShaders/SimpleTexture"
 }
 ```
 이 셰이더를 적용한 머티리얼의 인스펙터를 보면 _MainTex 슬롯과 함께 Tiling, Offset 값을 조절하는 필드가 나타납니다. 이 값을 변경하며 텍스처가 어떻게 변하는지 관찰해보세요.
+
+## Unity가 텍스처 프로퍼티를 정의할 때 자동으로 제공하는 변수
+
+##### 1. _ST (Scale, Translation)
+
+형식: float4 _Name_ST
+의미: 타일링(Tiling)과 오프셋(Offset)
+
+`.xy → Tiling 값`
+`.zw → Offset 값`
+
+```hlsl
+uv = uv * _MainTex_ST.xy + _MainTex_ST.zw;
+```
+##### 2. _TexelSize
+
+형식: float4 _Name_TexelSize
+의미: 텍스처의 픽셀 크기 정보
+
+`.x = 1 / width`
+`.y = 1 / height`
+`.z = width`
+`.w = height`
+
+주로 블러, 포스트 프로세싱, 커널 샘플링할 때 사용.
+
+```hlsl
+float2 texel = _MainTex_TexelSize.xy; // 한 픽셀 크기
+fixed4 c = tex2D(_MainTex, uv + texel); // 옆 픽셀 샘플링
+```
+##### 3. _HDR (HDR 관련)
+
+형식: float4 _Name_HDR
+의미: HDR 텍스처를 다룰 때 감마 보정이나 노출 보정을 위해 Unity가 제공.
+
+색 공간 변환 및 HDR 파라미터 저장용.
+Lightmap, Reflection Probe 텍스처에 자주 따라옴.
+
+##### 4. _TexelSize와 _ST를 함께 활용하는 경우
+
+예를 들어 포스트 프로세싱 블러 셰이더에서:
+```hlsl
+float2 uv = i.uv * _MainTex_ST.xy + _MainTex_ST.zw; // 타일링/오프셋 적용
+float2 texel = _MainTex_TexelSize.xy; // 픽셀 크기
+fixed4 col = tex2D(_MainTex, uv + texel * float2(1,0)); // 오른쪽 이웃 픽셀 샘플링
+```
+
+##### 5. 자동 제공 규칙 정리
+
+반드시 Properties 블록에 텍스처를 정의해야 함.
+
+이름 규칙
+```cg
+_MainTex → _MainTex_ST, _MainTex_TexelSize
+_NormalMap → _NormalMap_ST, _NormalMap_TexelSize
+```
+Unity의 머티리얼 인스펙터에서 Tiling / Offset / 텍스처 크기를 변경하면 이 값들이 자동 업데이트됨.
