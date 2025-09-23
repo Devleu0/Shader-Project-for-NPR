@@ -205,6 +205,80 @@ Shader "MyShaders/SimpleTexture"
 ```
 이 셰이더를 적용한 머티리얼의 인스펙터를 보면 _MainTex 슬롯과 함께 Tiling, Offset 값을 조절하는 필드가 나타납니다. 이 값을 변경하며 텍스처가 어떻게 변하는지 관찰해보세요.
 
+---
+
+## ShaderLab 심화 학습
+### 1. 속성(Property)의 종류
+Properties 블록에는 셰이더가 사용하는 변수들을 정의하며, 다양한 타입이 있습니다.
+
+| 타입 | 설명 | 예시 |
+|------|------|------|
+| **Color** | 색상 변수. RGBA(빨강, 초록, 파랑, 알파) 값을 가짐 | `_Color ("Main Color", Color) = (1,1,1,1)` |
+| **2D** | 텍스처 변수. 텍스처 파일을 할당할 수 있음 | `_MainTex ("Texture", 2D) = "white" {}` |
+| **Float** | 단일 부동소수점(실수) 변수 | `_FloatVar ("Float", Float) = 0.5` |
+| **Range(min, max)** | 일정 범위 내의 부동소수점 변수. 슬라이더로 조절됨 | `_Slider ("Slider", Range(0, 1)) = 0.5` |
+| **Vector** | 4차원 벡터(x, y, z, w) 변수 | `_VectorVar ("Vector", Vector) = (0,0,0,0)` |
+| **Cube** | 큐브맵(Cubemap) 변수 | `_CubeMap ("Cube Map", Cube) = ""` |
+
+---
+
+### 2. 태그(Tag)의 종류
+태그는 셰이더가 렌더링 파이프라인과 어떻게 상호작용해야 하는지 정의하는 키-값 쌍입니다.
+
+* "RenderType": 셰이더의 렌더링 타입을 명시합니다. (Opaque, Transparent, TransparentCutout 등)
+
+* "Queue": 오브젝트의 렌더링 순서를 결정합니다. 숫자 값이 낮을수록 먼저 렌더링됩니다. (Geometry, AlphaTest, Transparent 등)
+
+* "LightMode": 셰이더가 어떤 렌더링 패스(Forward, Deferred)에서 사용될지 지정합니다.
+
+* "DisableBatching": 동적/정적 배칭(Batching)을 비활성화할지 여부를 설정합니다.
+
+---
+
+### 3. SubShader 자동 선택
+Unity는 현재 실행 중인 그래픽 카드와 렌더링 경로에 가장 적합한 SubShader를 자동으로 선택합니다.
+
+Unity는 셰이더 파일에 정의된 SubShader들을 위에서부터 아래로 순서대로 확인합니다.
+
+각 SubShader에 정의된 **LOD (Level of Detail)**나 Tags 같은 조건이 현재 플랫폼의 사양과 일치하는지 검사합니다.
+
+조건이 일치하는 첫 번째 SubShader를 선택하고, 나머지 SubShader는 무시합니다.
+
+만약 모든 SubShader가 현재 플랫폼에서 실행될 수 없다면, Fallback 셰이더를 사용합니다.
+
+---
+
+### 4. 여러 개의 Pass 사용
+하나의 SubShader 내부에 여러 개의 Pass 블록을 정의하여 다단계 렌더링 효과를 만들 수 있습니다. 각 Pass는 특정 효과를 담당하는 독립적인 렌더링 단계입니다.
+
+외곽선 효과: 첫 번째 Pass에서 검은색 외곽선을 그리고, 두 번째 Pass에서 일반적인 렌더링을 수행하여 외곽선이 있는 오브젝트를 만듭니다.
+
+반사 효과: 첫 번째 Pass에서 반사 큐브맵을 사용하여 반사율을 계산하고, 두 번째 Pass에서 최종 색상을 렌더링합니다.
+
+다중 조명: 하나의 Pass가 하나의 조명만 처리하는 경우, 여러 개의 Pass를 사용하여 여러 개의 조명을 적용할 수 있습니다.
+```cg
+Shader "Example/MultiPass"
+{
+    // ...
+    SubShader
+    {
+        // 첫 번째 패스: 외곽선 렌더링
+        Pass
+        {
+            // 외곽선 렌더링을 위한 설정
+        }
+
+        // 두 번째 패스: 일반적인 오브젝트 렌더링
+        Pass
+        {
+            // 일반적인 렌더링을 위한 설정
+        }
+    }
+}
+```
+
+---
+
 ## Unity가 텍스처 프로퍼티를 정의할 때 자동으로 제공하는 변수
 
 ##### 1. _ST (Scale, Translation)
@@ -244,7 +318,7 @@ Lightmap, Reflection Probe 텍스처에 자주 따라옴.
 
 ##### 4. _TexelSize와 _ST를 함께 활용하는 경우
 
-예를 들어 포스트 프로세싱 블러 셰이더에서:
+예를 들어 포스트 프로세싱 블러 셰이더에서
 ```hlsl
 float2 uv = i.uv * _MainTex_ST.xy + _MainTex_ST.zw; // 타일링/오프셋 적용
 float2 texel = _MainTex_TexelSize.xy; // 픽셀 크기
