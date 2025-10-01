@@ -30,6 +30,115 @@
 `HDRP (High Definition Render Pipeline)`: 고사양 PC와 콘솔을 타겟으로, 최고 수준의 그래픽 품질을 제공하는 파이프라인입니다.
 
 
+# Unity에서 사용 가능한 셰이더 종류 (2025 기준)
+
+Unity는 현재 **Programmable Pipeline**을 기반으로 다양한 방식의 셰이더를 지원합니다.  
+Fixed Function Shader는 더 이상 지원되지 않으며, 아래 방식들이 주로 사용됩니다.
+
+
+## 1. Surface Shader
+- Unity의 **고전적인 셰이더 작성 방식**  
+- ShaderLab을 통해 간단한 선언으로 Unity의 표준 조명 모델을 자동 처리  
+- 내부적으로는 HLSL 코드로 변환되어 실행됨
+-  장점: 쓰기 쉽고, Unity의 조명/섀도우 시스템과 자동 연동  
+-  단점: 최신 SRP(URP/HDRP)에서는 권장되지 않음
+
+ 예시 
+```c
+#pragma surface surf Standard fullforwardshadows
+```
+
+
+## 2. Unlit Shader
+
+* 조명 계산을 전혀 하지 않는 셰이더
+* UI, HUD, 특수 효과 등에 주로 사용
+* HLSL을 직접 작성해야 하며, 매우 단순한 구조를 가짐
+
+
+## 3. Vertex/Fragment Shader (Programmable Shader)
+
+* GPU 파이프라인의 **Vertex Shader**와 **Fragment Shader**를 직접 작성
+* Unity의 ShaderLab 구문과 함께 HLSL 코드 포함 가능
+* 가장 범용적이며, 커스터마이즈 가능성이 높음
+* URP/HDRP 모두 사용 가능
+
+ 예시:
+
+```c
+Pass {
+    CGPROGRAM
+    #pragma vertex vert
+    #pragma fragment frag
+    ENDCG
+}
+```
+
+
+## 4. Compute Shader
+
+* 화면 렌더링과는 별개로 GPU 연산을 처리하기 위한 셰이더
+* GPGPU(병렬 연산), 물리 시뮬레이션, AI, 파티클 시스템 등에 활용
+* DirectX 11 이상, Metal, Vulkan에서 지원
+* 렌더링보다 데이터 처리용으로 주로 사용됨
+
+ 확장자
+
+```
+.compute
+```
+
+## 5. Shader Graph
+
+* 노드 기반 셰이더 제작 도구
+* SRP(URP/HDRP) 전용
+* HLSL을 몰라도 시각적으로 복잡한 셰이더 제작 가능
+* URP에서는 Lightweight Shader Graph, HDRP에서는 HDRP Shader Graph 사용
+
+ 특징
+
+* Unlit, Lit, PBR 등 다양한 마스터 노드 제공
+* 커스텀 함수 노드로 HLSL 코드 삽입 가능
+
+
+## 6. SRP 전용 셰이더
+
+Unity의 **Scriptable Render Pipeline(SRP)**(URP/HDRP)에 특화된 셰이더들.
+
+* ### URP Shader
+
+  * Universal Render Pipeline 전용
+  * 경량 & 범용 (모바일, VR, 일반 프로젝트에 적합)
+  * Shader Graph 또는 HLSL 기반으로 작성
+
+* ### HDRP Shader
+
+  * High Definition Render Pipeline 전용
+  * 고품질 PBR, 실사 렌더링 지향
+  * 물리 기반 라이팅, 레이 트레이싱 지원
+
+##  지원 중단된 셰이더
+
+* **Fixed Function Shader**
+
+  * 예: `Material { Diffuse ... }`, `Lighting On`, `SetTexture`
+  * Unity 5 이후 Deprecated, 현재 버전에서는 지원되지 않음
+
+
+##  정리
+
+* 과거: **Fixed Function Shader** → 현재는 사용 불가
+* 현재 사용 가능:
+
+  * **Surface Shader** (레거시 지원용)
+  * **Unlit Shader**
+  * **Vertex/Fragment Shader (HLSL)**
+  * **Compute Shader**
+  * **Shader Graph (SRP 전용)**
+  * **URP/HDRP 전용 셰이더**
+
+---
+
 URP 프로젝트 생성은 'Unity Hub'에서 새 프로젝트를 생성할 때 템플릿 목록에서 '3D (URP)'를 선택하면 간단히 완료됩니다. 프로젝트가 생성되면 Assets/Settings 폴더에서 URP 에셋 파일을 찾아 Project Settings > Graphics의 'Scriptable Render Pipeline Settings'에 할당되어 있는지 확인해보세요.
 
 ## 2챕터: 첫 셰이더와 ShaderLab
