@@ -3,13 +3,9 @@
 This repository contains learning materials for shader programming.
 
 이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL과 DirectX, Unity 엔진, Win32 등 다양한 환경에서 체계적으로 학습할 수 있도록 설계되었습니다. 
-셰이더나 그래픽스가 처음이라면 unity 환경에서 예제를 따라하며 기본기를 익히는 것을 추천합니다. 
+셰이더나 그래픽스가 처음이라면 Unity 환경에서 예제를 따라하며 기본기를 익히는 것을 추천합니다. 
 
 # 목차
-
-<details>
-<summary> Basics </summary>
----
 
 <details>
 <summary> Unity Shader</summary>
@@ -23,7 +19,9 @@ This repository contains learning materials for shader programming.
   - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
 
 </details>
-
+<details>
+<summary> HLSL/DirectX </summary>
+---
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
@@ -42,19 +40,19 @@ This repository contains learning materials for shader programming.
 </details>
 
 ---
+<details>
+<summary> 선수 과목</summary>
 
 <details>
 <summary> DirectX 11</summary>
 
-- [DirectX 11 학습 커리큘럼](./DirectX%2011%20학습%20커리큘럼.md)  
+- [DirectX 11 ](./DirectX%2011%20학습%20커리큘럼.md)  
 - 단계별 학습  
   - [DirectX 11 1단계](./Directx11/DirectX%2011%201단계.md)  
   - [DirectX 11 2단계 (중급)](./Directx11/DirectX%2011%202단계%20중급.md)  
   - [DirectX 11 3단계 (고급)](./Directx11/DirectX%2011%203단계%20고급.md)  
 
 </details>
-
-
 
 ---
 
@@ -77,14 +75,7 @@ This repository contains learning materials for shader programming.
 </details>
 
 ---
-
-# 선수 지식
-#### C++ 프로그래밍 기초
-
-#### 3D 벡터 및 행렬에 대한 기본적인 이해 (선형대수학)
-
-#### DirectX 또는 유사한 그래픽스 API 설정 및 기본 사용 경험 (권장)
-
+</details>
 
 ---
 
