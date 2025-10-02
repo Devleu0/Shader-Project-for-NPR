@@ -19,9 +19,12 @@ This repository contains learning materials for shader programming.
   - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
 
 </details>
+
 ---
+
 <details>
 <summary> HLSL/DirectX </summary>
+
 ---
 
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
@@ -50,7 +53,7 @@ This repository contains learning materials for shader programming.
 <details>
 <summary> DirectX 11</summary>
 
-- [DirectX 11 ](./DirectX%2011%20학습%20커리큘럼.md)  
+- [DirectX 11 학습](./DirectX%2011%20학습%20커리큘럼.md)  
 - 단계별 학습  
   - [DirectX 11 1단계](./Directx11/DirectX%2011%201단계.md)  
   - [DirectX 11 2단계 (중급)](./Directx11/DirectX%2011%202단계%20중급.md)  
