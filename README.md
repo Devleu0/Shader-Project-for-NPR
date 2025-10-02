@@ -19,9 +19,11 @@ This repository contains learning materials for shader programming.
   - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
 
 </details>
+---
 <details>
 <summary> HLSL/DirectX </summary>
 ---
+
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
@@ -42,6 +44,8 @@ This repository contains learning materials for shader programming.
 ---
 <details>
 <summary> 선수 과목</summary>
+
+---
 
 <details>
 <summary> DirectX 11</summary>
@@ -73,8 +77,6 @@ This repository contains learning materials for shader programming.
 - [Paint](./Win32/Paint)  
 
 </details>
-
----
 </details>
 
 ---
