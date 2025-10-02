@@ -9,6 +9,20 @@ This repository contains learning materials for shader programming.
 
 <details>
 <summary> Basics </summary>
+---
+
+<details>
+<summary> Unity Shader</summary>
+
+- [유니티 셰이더 커리큘럼](./Unity%20shader/유니티%20셰이더%20커리큘럼.md)  
+- [고급 셰이더 기술 심화 학습 로드맵](./Unity%20shader/고급%20셰이더%20기술%20심화%20학습%20로드맵.md)  
+- 학습 자료  
+  - [Part 1](./Unity%20shader/유니티%20셰이더%20Part%201%20학습%20자료.md)  
+  - [Part 2](./Unity%20shader/유니티%20셰이더%20Part%202%20학습%20자료.md)  
+  - [Part 3](./Unity%20shader/유니티%20셰이더%20Part%203%20학습%20자료.md)  
+  - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
+
+</details>
 
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
 * [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
@@ -40,25 +54,12 @@ This repository contains learning materials for shader programming.
 
 </details>
 
----
 
-<details>
-<summary> Unity Shader</summary>
-
-- [유니티 셰이더 커리큘럼](./Unity%20shader/유니티%20셰이더%20커리큘럼.md)  
-- [고급 셰이더 기술 심화 학습 로드맵](./Unity%20shader/고급%20셰이더%20기술%20심화%20학습%20로드맵.md)  
-- 학습 자료  
-  - [Part 1](./Unity%20shader/유니티%20셰이더%20Part%201%20학습%20자료.md)  
-  - [Part 2](./Unity%20shader/유니티%20셰이더%20Part%202%20학습%20자료.md)  
-  - [Part 3](./Unity%20shader/유니티%20셰이더%20Part%203%20학습%20자료.md)  
-  - [Part 4](./Unity%20shader/유니티%20셰이더%20Part%204%20학습%20자료.md)  
-
-</details>
 
 ---
 
 <details>
-<summary>🖥 Win32 / Win API</summary>
+<summary> Win32 / Win API</summary>
 
 - [0. Win32 학습 커리큘럼](./Win32/0.%20Win32%20학습%20커리큘럼.md)  
 - [1. Win API 학습 기초](./Win32/1.%20Win%20API%20학습%20기초.md)  
@@ -84,74 +85,23 @@ This repository contains learning materials for shader programming.
 
 #### DirectX 또는 유사한 그래픽스 API 설정 및 기본 사용 경험 (권장)
 
----
-
-
-
-
-## Part 1: 셰이더 프로그래밍 입문 (1~4챕터)
-#### 1챕터: 그래픽스 파이프라인과 셰이더의 역할
-
-#### 2챕터: 기본 조명 모델 (퐁 조명)
-
-
-#### 3챕터: 텍스처 매핑 (Texture Mapping)
-
-
-#### 4챕터: 미니 프로젝트 #1 - 조명과 텍스처를 가진 3D 모델 렌더링
-
 
 ---
 
-## Part 2: 중급 셰이딩 기법 (5~9챕터)
-#### 5챕터: 고급 조명 기법
-
-
-#### 6챕터: 노멀 매핑 (Normal Mapping)
-
-
-#### 7챕터: 그림자 매핑 (Shadow Mapping)
-
-
-#### 8챕터: 반사 및 환경 매핑
-
-
-#### 9챕터: 미니 프로젝트 #2 - 고급 셰이더 효과 통합
-
-
----
-
-## Part 3: 고급 셰이더 및 최적화 (10~14챕터)
-#### 10챕터: 후처리 효과 (Post-Processing)
-
-
-#### 11챕터: 지오메트리 & 테셀레이션 셰이더
-
-#### 12챕터: 컴퓨트 셰이더 (Compute Shader)
-
-
-#### 13챕터: 셰이더 최적화
-
-
-#### 14챕터: 최종 프로젝트 - 자신만의 셰이더 기술 데모 제작
-
-
----
-
-#####  추천 자료 및 도구
+####  추천 자료 및 도구
 * 개발 환경: Visual Studio
 
 * 디버깅/프로파일링: PIX for Windows, RenderDoc
 
-##### 참고 서적
+#### 참고 서적
 
 * "Introduction to 3D Game Programming with DirectX 12" (Frank D. Luna)
 
 * "Real-Time Rendering"
 
-##### 온라인 자료
+#### 온라인 자료
 
-* ShaderToy: 다른 사람들의 셰이더 코드를 보고 배우기 좋은 사이트
+* ShaderToy: 온라인의 셰이더 작성 및 확인 가능, 다른 사람들의 셰이더 코드를 보고 배우기 좋은 사이트
 
 * Catlike Coding: (Unity 기반, 원리 이해에 큰 도움이 됨)
 
