@@ -28,9 +28,9 @@ This repository contains learning materials for shader programming.
 ---
 
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
-* [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
-* [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
-* [HLSL/DirectX 셰이더 프로그래밍 학습자료 (Part 3)](./Shader%20Learning/Basics/4.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%203).md)
+* [HLSL/DirectX 학습자료 (1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
+* [HLSL/DirectX 학습자료 (2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
+* [HLSL/DirectX 학습자료 (3)](./Shader%20Learning/Basics/4.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%203).md)
 
 </details>
 
@@ -48,16 +48,15 @@ This repository contains learning materials for shader programming.
 <details>
 <summary> 선수 과목</summary>
 
----
 
 <details>
 <summary> DirectX 11</summary>
 
 - [DirectX 11 학습](./DirectX%2011%20학습%20커리큘럼.md)  
 - 단계별 학습  
-  - [DirectX 11 1단계](./Directx11/DirectX%2011%201단계.md)  
-  - [DirectX 11 2단계 (중급)](./Directx11/DirectX%2011%202단계%20중급.md)  
-  - [DirectX 11 3단계 (고급)](./Directx11/DirectX%2011%203단계%20고급.md)  
+  - [DirectX 11 기초](./Directx11/DirectX%2011%201단계.md)  
+  - [DirectX 11 중급](./Directx11/DirectX%2011%202단계%20중급.md)  
+  - [DirectX 11 고급](./Directx11/DirectX%2011%203단계%20고급.md)  
 
 </details>
 
