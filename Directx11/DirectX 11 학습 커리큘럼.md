@@ -1,134 +1,130 @@
 # DirectX 11 학습 커리큘럼
 DirectX 11은 강력한 3D 그래픽스 API로, 게임 개발 및 고성능 그래픽 애플리케이션 제작에 필수적인 기술입니다. 이 커리큘럼은 DirectX 11을 처음 접하는 입문자부터 숙련된 개발자까지 모두를 위해 체계적인 학습 경로를 제공합니다.
 
-## 🏁 1단계: 초급 (기초 다지기)
+##  초급 (기초 다지기)
 이 단계의 목표는 DirectX 11 프로그래밍 환경을 구축하고, 기본적인 렌더링 파이프라인의 이해를 통해 화면에 간단한 도형을 그려보는 것입니다.
 
-주요 학습 내용:
 
-개발 환경 설정
 
-Visual Studio 설치 및 설정
+### 개발 환경 설정
 
-Windows SDK 이해 및 포함
+* Visual Studio 설치 및 설정
 
-DirectX 11 프로젝트 생성하기
+* Windows SDK 이해 및 포함
 
-DirectX 11 초기화
+* DirectX 11 프로젝트 생성하기
 
-Win32 윈도우 생성 및 메시지 루프 이해
+* DirectX 11 초기화
 
-Device와 Device Context의 역할
+* Win32 윈도우 생성 및 메시지 루프 이해
 
-SwapChain 생성 및 설정
+* Device와 Device Context의 역할
 
-Render Target View 및 Depth Stencil View 설정
+* SwapChain 생성 및 설정
 
-Viewport 설정
+* Render Target View 및 Depth Stencil View 설정
 
-첫 렌더링: 삼각형 그리기
+* Viewport 설정
 
-Vertex Buffer와 Index Buffer의 개념 이해 및 생성
+### 첫 렌더링: 삼각형 그리기
 
-Input Layout 설정
+* Vertex Buffer와 Index Buffer의 개념 이해 및 생성
 
-렌더링 파이프라인의 기본 흐름 이해
+* Input Layout 설정
 
-간단한 Vertex Shader와 Pixel Shader 작성 (HLSL 기초)
+* 렌더링 파이프라인의 기본 흐름 이해
 
-기본 개념
+* 간단한 Vertex Shader와 Pixel Shader 작성 (HLSL 기초)
 
-상수 버퍼 (Constant Buffer)를 이용한 데이터 전달
+### 기본 개념
 
-Rasterizer State, Sampler State, Blend State의 역할
+* 상수 버퍼 (Constant Buffer)를 이용한 데이터 전달
 
-텍스처(Texture)와 UV 좌표의 기본 개념
+* Rasterizer State, Sampler State, Blend State의 역할
 
-## 🔥 2단계: 중급 (핵심 기능 마스터)
+* 텍스처(Texture)와 UV 좌표의 기본 개념
+
+## 중급 (핵심 기능 마스터)
 초급 단계를 마쳤다면, 이제 본격적으로 3D 그래픽스의 핵심 요소들을 배우게 됩니다. 셰이더 프로그래밍, 조명, 카메라 등을 통해 더욱 사실적인 3D 씬을 구성하는 방법을 학습합니다.
 
-주요 학습 내용:
 
-HLSL 셰이더 프로그래밍 심화
 
-Vertex Shader, Pixel Shader 심층 이해
+* HLSL 셰이더 프로그래밍 심화
 
-셰이더 전역 변수, 구조체, 시맨틱(Semantics)
+* Vertex Shader, Pixel Shader 심층 이해
 
-다양한 데이터 타입 및 내장 함수 활용
+* 셰이더 전역 변수, 구조체, 시맨틱(Semantics)
 
-텍스처링 (Texturing)
+* 다양한 데이터 타입 및 내장 함수 활용
 
-DDS 등 텍스처 파일 로드 및 적용
+### 텍스처링 (Texturing)
 
-Sampler State를 이용한 텍스처 필터링 및 래핑(wrapping) 제어
+* DDS 등 텍스처 파일 로드 및 적용
 
-밉맵(Mipmap)의 이해와 활용
+* Sampler State를 이용한 텍스처 필터링 및 래핑(wrapping) 제어
 
-조명 (Lighting)
+* 밉맵(Mipmap)의 이해와 활용
 
-광원의 종류 (방향성, 점, 스포트라이트)
+### 조명 (Lighting)
 
-퐁 조명 모델(Phong Lighting Model) 이해
+* 광원의 종류 (방향성, 점, 스포트라이트)
 
-Ambient(환경광), Diffuse(난반사), Specular(정반사)
+* 퐁 조명 모델(Phong Lighting Model) 이해
 
-법선 벡터(Normal Vector)의 중요성과 법선 매핑(Normal Mapping)
+* Ambient(환경광), Diffuse(난반사), Specular(정반사)
 
-카메라 (Camera)
+* 법선 벡터(Normal Vector)의 중요성과 법선 매핑(Normal Mapping)
 
-뷰 변환(View Transform)과 투영 변환(Projection Transform) 행렬
+### 카메라 (Camera)
 
-1인칭/3인칭 카메라 구현
+* 뷰 변환(View Transform)과 투영 변환(Projection Transform) 행렬
 
-마우스 및 키보드 입력을 통한 카메라 제어
+* 1인칭/3인칭 카메라 구현
 
-3D 모델 렌더링
+* 마우스 및 키보드 입력을 통한 카메라 제어
 
-메시(Mesh) 데이터 구조의 이해
+### 3D 모델 렌더링
 
-OBJ, FBX 등 외부 3D 모델 파일 로드 및 렌더링
+* 메시(Mesh) 데이터 구조의 이해
 
-## 🚀 3단계: 고급 (심화 기술 및 최적화)
+* OBJ, FBX 등 외부 3D 모델 파일 로드 및 렌더링
+
+## 고급 (심화 기술 및 최적화)
 이 단계에서는 DirectX 11의 고급 기능들을 활용하여 렌더링 품질을 극대화하고, 대규모 씬을 효율적으로 처리하기 위한 최적화 기법을 배웁니다.
 
-주요 학습 내용:
 
-고급 렌더링 기법
 
-인스턴싱 (Instancing): 다수의 동일한 메시를 효율적으로 렌더링
+### 고급 렌더링 기법
 
-테셀레이션 (Tessellation): Hull Shader, Tessellator, Domain Shader를 이용한 동적 지오메트리 생성
+* 인스턴싱 (Instancing): 다수의 동일한 메시를 효율적으로 렌더링
 
-지오메트리 셰이더 (Geometry Shader): 동적으로 프리미티브를 생성/제거
+* 테셀레이션 (Tessellation): Hull Shader, Tessellator, Domain Shader를 이용한 동적 지오메트리 생성
 
-컴퓨트 셰이더 (Compute Shader): GPU를 이용한 범용 계산 (GPGPU)
+* 지오메트리 셰이더 (Geometry Shader): 동적으로 프리미티브를 생성/제거
 
-실시간 렌더링 심화
+* 컴퓨트 셰이더 (Compute Shader): GPU를 이용한 범용 계산 (GPGPU)
 
-지연 셰이딩 (Deferred Shading): 다중 광원 환경에서의 효율적인 렌더링
+### 실시간 렌더링 심화
 
-그림자 매핑 (Shadow Mapping): 실시간 그림자 생성 기법
+* 지연 셰이딩 (Deferred Shading): 다중 광원 환경에서의 효율적인 렌더링
 
-포스트 프로세싱 (Post-processing): 블룸(Bloom), 모션 블러(Motion Blur) 등 후처리 효과
+* 그림자 매핑 (Shadow Mapping): 실시간 그림자 생성 기법
 
-성능 최적화
+* 포스트 프로세싱 (Post-processing): 블룸(Bloom), 모션 블러(Motion Blur) 등 후처리 효과
 
-Draw Call 줄이기 (배칭, 인스턴싱)
+### 성능 최적화
 
-GPU 프로파일링 도구 사용법 (e.g., PIX)
+* Draw Call 줄이기 (배칭, 인스턴싱)
 
-리소스 상태 관리 및 불필요한 상태 변경 최소화
+* GPU 프로파일링 도구 사용법 (e.g., PIX)
 
-멀티스레드 렌더링의 이해
+* 리소스 상태 관리 및 불필요한 상태 변경 최소화
 
-## 📚 추천 자료 및 학습 팁
+* 멀티스레드 렌더링의 이해
+
+## 추천 자료
 Frank D. Luna의 "Introduction to 3D Game Programming with DirectX 11": '용책'이라 불리는 필독서입니다. 이론과 실습 예제가 매우 잘 정리되어 있습니다.
 
-Rastertek Tutorials: 웹에서 찾을 수 있는 훌륭한 단계별 튜토리얼입니다.
+Rastertek Tutorials: 웹에서 학습할 수 있는 단계별 튜토리얼입니다.
 
 공식 문서 활용: Microsoft의 DirectX Graphics and Gaming 문서는 가장 정확한 정보를 담고 있습니다.
-
-꾸준한 실습: 직접 코드를 작성하고, 수정하고, 실험하는 과정 없이는 실력이 늘기 어렵습니다. 작은 토이 프로젝트부터 시작해 점차 규모를 키워나가세요.
-
-이 커리큘럼을 바탕으로 꾸준히 학습하신다면, 분명 훌륭한 그래픽스 프로그래머로 성장하실 수 있을 것입니다. 행운을 빕니다!
