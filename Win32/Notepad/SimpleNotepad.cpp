@@ -1,4 +1,4 @@
-//3. win api 예제 
+// SimpleNotepad (Win32 예제 3)
 // SimpleNotepad.cpp
 // Windows API를 사용하여 간단한 메모장 기능을 구현하는 예제 코드입니다.
 
@@ -145,7 +145,7 @@ void DoFileOpen(HWND hWnd)
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hWnd;
     ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
+    ofn.nMaxFile = ARRAYSIZE(szFile);
     ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
     ofn.nFilterIndex = 1;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
@@ -162,7 +162,7 @@ void DoFileOpen(HWND hWnd)
                 DWORD dwRead;
                 if (ReadFile(hFile, pszText, dwFileSize, &dwRead, NULL))
                 {
-                    pszText[dwFileSize] = '\0';
+                    pszText[dwRead] = '\0';
                     SetWindowTextA(hEdit, pszText); // ANSI 버전 사용
                 }
                 delete[] pszText;
@@ -181,10 +181,10 @@ void DoFileSave(HWND hWnd)
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hWnd;
     ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
+    ofn.nMaxFile = ARRAYSIZE(szFile);
     ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0";
     ofn.nFilterIndex = 1;
-    ofn.Flags = OFN_OVERWRITEPrompt;
+    ofn.Flags = OFN_OVERWRITEPROMPT;
 
     if (GetSaveFileName(&ofn) == TRUE)
     {
@@ -202,4 +202,3 @@ void DoFileSave(HWND hWnd)
         }
     }
 }
-
