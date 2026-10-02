@@ -1,7 +1,6 @@
-//4. 리소스 헤더 파일
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++에서 생성한 포함 파일입니다.
-// SimpleNotepad.rc에서 사용되고 있습니다.
+// FileSearcher.rc에서 사용되고 있습니다.
 
 #define IDD_MAIN                        101
 #define IDC_EDIT_PATH                   1000
@@ -20,4 +19,3 @@
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
-
