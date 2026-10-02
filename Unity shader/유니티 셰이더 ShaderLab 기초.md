@@ -38,6 +38,7 @@
 * `HDRP (High Definition Render Pipeline)`: 고사양 PC와 콘솔을 타겟으로, 최고 수준의 그래픽 품질을 제공하는 파이프라인입니다.
 
 
+
 # Unity에서 사용 가능한 셰이더 종류
 
 Unity는 현재 **Programmable Pipeline**을 기반으로 다양한 방식의 셰이더를 지원합니다.  
@@ -82,6 +83,8 @@ Pass {
 }
 ```
 
+> ⚠ 위 `CGPROGRAM ... ENDCG` 는 **Built-in 파이프라인 전용** 문법입니다. 이 문서의 실습은 URP 기준이므로 `HLSLPROGRAM ... ENDHLSL` 과 URP 의 `Core.hlsl` 를 사용합니다. URP 프로젝트에서 CG 방식 셰이더는 분홍색으로 보입니다.
+
 
 ## 4. **Compute Shader**
 
@@ -101,11 +104,11 @@ Pass {
 * 노드 기반 셰이더 제작 도구
 * SRP(URP/HDRP) 전용
 * HLSL을 몰라도 시각적으로 복잡한 셰이더 제작 가능
-* URP에서는 Lightweight Shader Graph, HDRP에서는 HDRP Shader Graph 사용
+* URP/HDRP 모두 같은 Shader Graph 에서 대상(Target)을 선택해 사용 (URP 의 옛 이름은 Lightweight RP)
 
  특징
 
-* Unlit, Lit, PBR 등 다양한 마스터 노드 제공
+* Unlit, Lit 등 다양한 Target 설정 제공 (옛 버전의 "마스터 노드"는 지금은 Fragment/Vertex 컨텍스트로 바뀜)
 * 커스텀 함수 노드로 HLSL 코드 삽입 가능
 
 
@@ -177,6 +180,9 @@ Shader "MyShaders/SimpleUnlit" // 셰이더의 경로와 이름
 
 
 아래는 과제를 위한 전체 코드 예시입니다. Project 창에서 Create > Shader > Unlit Shader로 파일을 생성하고 내용을 아래 코드로 교체한 뒤, 새 머티리얼(Material)을 만들어 이 셰이더를 적용하고 3D 오브젝트에 할당해보세요.
+
+> **따라 하기 환경**: Unity 2022.3 LTS, 템플릿 `3D (URP)`. 이 문서의 예제 셰이더는 Project 창 → Create → Shader → **Unlit Shader**(또는 Empty Shader)로 파일을 만들고 내용을 통째로 교체한 뒤, 셰이더 우클릭 → Create → Material → 오브젝트에 드래그해서 확인합니다. 작성자가 에디터에서 직접 컴파일해 보지는 못했으므로 콘솔 에러가 나면 알려 주세요. (참고: 변수를 `CBUFFER_START(UnityPerMaterial)` 안에 넣으면 SRP Batcher 와 호환됩니다. Part 2 문서 예제가 이 형식입니다.)
+
 ```c
 // 유니티 셰이더 파일: SimpleColor.shader
 Shader "MyShaders/SimpleColor"
@@ -261,6 +267,8 @@ half brightness = 0.8;
 ---
 
 ### fixed
+> ⚠ `fixed` 는 **Built-in 파이프라인(CG)에서만** 쓰이는 타입입니다. URP 의 HLSL 셰이더에서는 `half`/`float` 만 사용하세요(`fixed4` 는 컴파일 오류가 날 수 있음).
+
 
 * 11비트 고정소수점.
 * 매우 낮은 정밀도 → 주로 **색 데이터(0~1 범위)**에 최적화됨.
@@ -279,7 +287,7 @@ fixed4 col = fixed4(1.0, 0.5, 0.2, 1.0);
 
 * **정밀도 최우선** → `float`
 * **균형(정밀도 + 성능)** → `half`
-* **성능 최우선, 낮은 정밀도 허용** → `fixed`
+* **성능 최우선, 낮은 정밀도 허용** → `fixed` (Built-in 한정. URP 에서는 `half` 로 대체)
 
  **팁**
 Unity의 Surface Shader에서 `fixed`는 기본적으로 색 속성에 많이 사용됩니다.
@@ -452,66 +460,3 @@ Shader "Example/MultiPass"
 
 ---
 
-## Unity가 텍스처 프로퍼티를 정의할 때 자동으로 제공하는 변수
-
-## 1. _ST (Scale, Translation)
-
- float4 _Name_ST
- 타일링(Tiling)과 오프셋(Offset)
-
-`.xy → Tiling 값`
-`.zw → Offset 값`
-
-```hlsl
-uv = uv * _MainTex_ST.xy + _MainTex_ST.zw;
-```
----
-
-## 2. _TexelSize
-
- float4 _Name_TexelSize
- 텍스처의 픽셀 크기 정보
-
-`.x = 1 / width`
-`.y = 1 / height`
-`.z = width`
-`.w = height`
-
-주로 블러, 포스트 프로세싱, 커널 샘플링할 때 사용.
-
-```hlsl
-float2 texel = _MainTex_TexelSize.xy; // 한 픽셀 크기
-fixed4 c = tex2D(_MainTex, uv + texel); // 옆 픽셀 샘플링
-```
-
-
-## 3. _HDR (HDR 관련)
-
- float4 _Name_HDR
- HDR 텍스처를 다룰 때 감마 보정이나 노출 보정을 위해 Unity가 제공.
-
-색 공간 변환 및 HDR 파라미터 저장용.
-Lightmap, Reflection Probe 텍스처에 자주 따라옴.
-
-
-
-## 4. _TexelSize와 _ST를 함께 활용하는 경우
-
-예를 들어 포스트 프로세싱 블러 셰이더에서
-```hlsl
-float2 uv = i.uv * _MainTex_ST.xy + _MainTex_ST.zw; // 타일링/오프셋 적용
-float2 texel = _MainTex_TexelSize.xy; // 픽셀 크기
-fixed4 col = tex2D(_MainTex, uv + texel * float2(1,0)); // 오른쪽 이웃 픽셀 샘플링
-```
-
-
-## 자동 제공 규칙 정리
-
-반드시 Properties 블록에 텍스처를 정의해야 함.
-
-이름 규칙
-```cg
-_MainTex → _MainTex_ST, _MainTex_TexelSize
-_NormalMap → _NormalMap_ST, _NormalMap_TexelSize
-```
-Unity의 머티리얼 인스펙터에서 Tiling / Offset / 텍스처 크기를 변경하면 이 값들이 자동 업데이트됨.
