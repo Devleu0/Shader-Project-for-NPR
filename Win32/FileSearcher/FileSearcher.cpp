@@ -1,4 +1,4 @@
-// 4. FileSearcher.cpp
+// FileSearcher.cpp
 // 멀티스레딩을 이용한 파일 검색기 예제 코드입니다.
 
 #include <windows.h>
@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
-    // 모달리스 대화 상자를 메인 윈도우로 사용
+    // 모달 대화 상자(DialogBox)를 메인 윈도우처럼 사용 (DialogBox 는 닫힐 때까지 반환하지 않음)
     DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAIN), NULL, DlgProc);
     return 0;
 }
@@ -110,7 +110,7 @@ DWORD WINAPI SearchThread(LPVOID lpParam)
 void SearchInDirectory(LPCWSTR szPath, LPCWSTR szTerm, HWND hDlg)
 {
     WCHAR szSearchPath[MAX_PATH];
-    wsprintf(szSearchPath, L"%s\\*", szPath);
+    swprintf_s(szSearchPath, L"%s\\*", szPath);
 
     WIN32_FIND_DATA findData;
     HANDLE hFind = FindFirstFile(szSearchPath, &findData);
@@ -123,7 +123,7 @@ void SearchInDirectory(LPCWSTR szPath, LPCWSTR szTerm, HWND hDlg)
             continue;
 
         WCHAR szFullPath[MAX_PATH];
-        wsprintf(szFullPath, L"%s\\%s", szPath, findData.cFileName);
+        swprintf_s(szFullPath, L"%s\\%s", szPath, findData.cFileName);
 
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
@@ -189,4 +189,3 @@ void LoadLastPath(HWND hEdit)
         RegCloseKey(hKey);
     }
 }
-

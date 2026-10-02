@@ -1,4 +1,6 @@
 # DirectX 11 학습 2단계: 중급 (핵심 기능 마스터)
+> **따라 하기**: 1단계의 `main.cpp` 를 확장해서 진행합니다 (상수 버퍼, 텍스처, 깊이 버퍼를 추가). 아래 C++ 코드는 DirectX Tool Kit 의 `SimpleMath`(`#include <SimpleMath.h>`, NuGet `directxtk_desktop_win10`)를 사용하는 *조각*이며 전체 프로그램이 아닙니다. 텍스처 로드는 DirectXTK 의 `CreateWICTextureFromFile`(`WICTextureLoader.h`)이 가장 간단합니다. 환경과 행렬 규약은 [실습 환경과 공통 규약](../Shader%20Learning/0.%20실습%20환경과%20공통%20규약.md)을 먼저 읽으세요. 작성자가 직접 빌드해 확인하지는 못했습니다.
+
 ### 목표
 단순한 도형 렌더링을 넘어, 3D 그래픽스의 핵심 요소인 텍스처, 조명, 카메라의 원리를 이해하고 직접 구현함으로써 사실적인 3D 씬을 구성하는 능력을 기릅니다. 이 단계를 마치면 3D 모델에 텍스처를 입히고, 조명을 비추며, 원하는 시점에서 씬을 바라볼 수 있게 됩니다.
 
@@ -69,7 +71,16 @@ Matrix mProjection = Matrix::CreatePerspectiveFieldOfView(fov, aspectRatio, near
 
 Matrix mWVP = mWorld * mView * mProjection;
 
-// 이 mWVP 행렬을 상수 버퍼를 통해 정점 셰이더로 전달
+// 상수 버퍼에 올릴 때는 반드시 전치(Transpose)한다.
+//   SimpleMath/DirectXMath 는 행 우선(row-major), HLSL cbuffer 의 기본 패킹은 열 우선(column-major) 이기 때문.
+//   (HLSL 의 mul(vector, matrix) 규약은 이 전치를 전제로 한다.)
+struct CbChangesEveryFrame { Matrix World, View, Projection; };
+CbChangesEveryFrame cb;
+cb.World = mWorld.Transpose();
+cb.View = mView.Transpose();
+cb.Projection = mProjection.Transpose();
+context->UpdateSubresource(cbuffer.Get(), 0, nullptr, &cb, 0, 0); // cbuffer 는 BIND_CONSTANT_BUFFER, ByteWidth=sizeof(CbChangesEveryFrame)(=192, 16의 배수)
+context->VSSetConstantBuffers(0, 1, cbuffer.GetAddressOf());
 ```
 ## 5. 3D 모델 렌더링
 이제 직접 만든 정점 데이터 대신, 외부에서 제작된 3D 모델 파일을 불러와 렌더링하는 방법을 알아봅니다.
@@ -82,6 +93,7 @@ Matrix mWVP = mWorld * mView * mProjection;
 
 데이터 활용: 로드된 정점 데이터(위치, 법선, UV좌표 등)를 정점 버퍼에, 인덱스 데이터를 인덱스 버퍼에 채워넣고 렌더링하면 됩니다.
 
+**(완성형)** 아래 셰이더는 위 C++ 조각과 짝입니다. 호스트가 해야 할 일: 정점 레이아웃 `POSITION`(R32G32B32_FLOAT, 0) / `NORMAL`(R32G32B32_FLOAT, 12) / `TEXCOORD`(R32G32_FLOAT, 24), 슬롯 b0 = 행렬 상수 버퍼(VS), b1 = 조명 상수 버퍼(**PS 에 바인딩**: `PSSetConstantBuffers(1, …)`), t0 = 텍스처 SRV, s0 = 샘플러, 그리고 3D 장면이므로 **깊이 버퍼(DSV)와 `ClearDepthStencilView`** 가 필요합니다.
 ```hlsl
 // 상수 버퍼 (C++에서 데이터를 받아옴)
 cbuffer CbChangesEveryFrame : register(b0)
@@ -155,19 +167,21 @@ float4 PS(PS_INPUT input) : SV_Target
     float4 ambient = float4(0.1f, 0.1f, 0.1f, 1.0f) * textureColor;
 
     // 난반사(Diffuse) 계산
-    float3 lightDir = normalize(LightDir.xyz);
-    float diffuseFactor = saturate(dot(input.Norm, -lightDir));
+    float3 lightDir = normalize(LightDir.xyz);          // LightDir: 빛이 진행하는 방향(광원 -> 표면)
+    float3 N = normalize(input.Norm);                   // 보간된 법선은 길이가 1 이 아닐 수 있다
+    float diffuseFactor = saturate(dot(N, -lightDir));
     float4 diffuse = diffuseFactor * LightColor * textureColor;
     
     // 정반사(Specular) 계산
     float3 viewDir = normalize(CameraPos.xyz - input.WorldPos);
-    float3 reflectDir = reflect(lightDir, input.Norm);
-    float specularFactor = pow(saturate(dot(viewDir, reflectDir)), 32.0f); // 32.0f 는 광택도(shininess)
+    float3 reflectDir = reflect(lightDir, N);
+    // 32.0f 는 광택도(shininess). 빛을 받지 않는 면(diffuseFactor == 0)에서는 하이라이트가 생기지 않게 막는다.
+    float specularFactor = pow(saturate(dot(viewDir, reflectDir)), 32.0f) * (diffuseFactor > 0.0f ? 1.0f : 0.0f);
     float4 specular = specularFactor * LightColor;
 
     // 최종 색상 = 환경광 + 난반사 + 정반사
     float4 finalColor = ambient + diffuse + specular;
-
+    finalColor.a = textureColor.a;
     return finalColor;
 }
 ```

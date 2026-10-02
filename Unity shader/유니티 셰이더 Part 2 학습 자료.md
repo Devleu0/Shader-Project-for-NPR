@@ -1,6 +1,8 @@
 # 유니티 셰이더 Part 2 학습 자료
 이 문서는 '유니티 셰이더 16주 완성 커리큘럼'의 Part 2 학습 자료입니다. 조명 계산, 블렌딩, 정점 애니메이션 등 중급 셰이더 기법을 학습하는 것을 목표로 합니다.
 
+> **따라 하기 환경**: Unity 2022.3 LTS + URP 14 (새 프로젝트 템플릿 `3D (URP)`). 셰이더는 `Project 창 → Create → Shader → Unlit Shader`(또는 Empty Shader)로 파일을 만들고 내용을 전부 붙여 넣은 뒤, 셰이더 우클릭 → Create → Material → 오브젝트에 적용합니다. 코드는 에디터에서 직접 컴파일해 검증하지 못했으므로 콘솔 에러가 나면 알려 주세요.
+
 ## 5챕터: 기본 조명 모델
 
 ### Lambert, Phong, Blinn-Phong 모델과 코사인 관계
@@ -188,8 +190,65 @@ Shader "MyShaders/SimpleLambert"
 
 
 5챕터 코드에 Blinn-Phong 정반사 계산을 추가한 코드입니다.
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/BlinnPhong.shader`](./ShderTestProject/Assets/Shaders/Lessons/BlinnPhong.shader)
-> 핵심: `H = normalize(L + V)`, `pow(saturate(dot(N,H)), _Shininess)`. 이전 문서의 발췌 코드는 변수 선언이 빠져 컴파일되지 않아 완성 파일로 교체했습니다.
+**파일: `Assets/Shaders/Lessons/BlinnPhong.shader`**
+```hlsl
+// Part 2 : Lambert + Blinn-Phong 스페큘러 (URP)
+Shader "Lessons/BlinnPhong"
+{
+    Properties
+    {
+        _BaseColor ("Base Color", Color) = (1,1,1,1)
+        _Shininess ("Shininess", Range(0.1, 100)) = 20
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
+            struct Varyings   { float4 positionHCS : SV_POSITION; float3 normalWS : TEXCOORD0; float3 positionWS : TEXCOORD1; };
+
+            CBUFFER_START(UnityPerMaterial)
+                half4 _BaseColor;
+                half  _Shininess;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionWS  = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
+                OUT.normalWS    = TransformObjectToWorldNormal(IN.normalOS);
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float3 N = normalize(IN.normalWS);
+                Light light = GetMainLight();
+                float3 L = light.direction;
+                float3 V = GetWorldSpaceNormalizeViewDir(IN.positionWS);
+                float3 H = normalize(L + V);
+
+                half diffuse  = saturate(dot(N, L));
+                half specular = pow(saturate(dot(N, H)), _Shininess) * step(0.0, diffuse);
+                half3 color = (_BaseColor.rgb * diffuse + specular) * light.color;
+                return half4(color, 1);
+            }
+            ENDHLSL
+        }
+    }
+}
+```
+
+> 핵심: `H = normalize(L + V)`, `pow(saturate(dot(N,H)), _Shininess)`.
 
 ## 7챕터: 투명도와 블렌딩
 `알파 블렌딩 (Alpha Blending)`
@@ -208,10 +267,95 @@ Shader "MyShaders/SimpleLambert"
 
 
 1. 반투명 유리 셰이더
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/TransparentGlass.shader`](./ShderTestProject/Assets/Shaders/Lessons/TransparentGlass.shader)
+**파일: `Assets/Shaders/Lessons/TransparentGlass.shader`**
+```hlsl
+// Part 2 : 알파 블렌딩 (반투명)
+Shader "Lessons/TransparentGlass"
+{
+    Properties { _Color ("Color", Color) = (1,1,1,0.5) }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent" "RenderType"="Transparent" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            ZWrite Off
+            Blend SrcAlpha OneMinusSrcAlpha
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; };
+            struct Varyings   { float4 positionHCS : SV_POSITION; };
+            CBUFFER_START(UnityPerMaterial)
+                half4 _Color;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                return OUT;
+            }
+            half4 frag(Varyings IN) : SV_Target { return _Color; }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 핵심: `Queue=Transparent`, `ZWrite Off`, `Blend SrcAlpha OneMinusSrcAlpha`. Color 의 A 를 낮춰 보세요.
 2. Cutout 셰이더
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/AlphaCutout.shader`](./ShderTestProject/Assets/Shaders/Lessons/AlphaCutout.shader)
+**파일: `Assets/Shaders/Lessons/AlphaCutout.shader`**
+```hlsl
+// Part 2 : 알파 테스트 (clip) - 투명한 픽셀을 버린다
+Shader "Lessons/AlphaCutout"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+        _Cutoff ("Alpha Cutoff", Range(0,1)) = 0.5
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            Cull Off
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionHCS : SV_POSITION; float2 uv : TEXCOORD0; };
+            TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                half _Cutoff;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
+                return OUT;
+            }
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 tex = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+                clip(tex.a - _Cutoff);
+                return tex;
+            }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 핵심: `clip(tex.a - _Cutoff)`. 알파가 있는 PNG(예: 나뭇잎)를 _MainTex 에 넣어 테스트하세요.
 
 ## 8챕터: 정점 셰이더 활용
@@ -224,6 +368,53 @@ _Time 변수`
 
 `과제 가이드`
 바람에 흔들리는 깃발처럼 평면(Plane)을 위아래로 출렁이게 하는 셰이더 코드입니다.
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/WavingFlag.shader`](./ShderTestProject/Assets/Shaders/Lessons/WavingFlag.shader)
+**파일: `Assets/Shaders/Lessons/WavingFlag.shader`**
+```hlsl
+// Part 2 : 정점 애니메이션 (_Time 으로 정점을 흔든다). Plane 이나 Quad 에 적용하면 잘 보인다.
+Shader "Lessons/WavingFlag"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+        _WaveSpeed ("Wave Speed", Float) = 1
+        _WaveHeight ("Wave Height", Float) = 0.1
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            Cull Off
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionHCS : SV_POSITION; float2 uv : TEXCOORD0; };
+            TEXTURE2D(_MainTex); SAMPLER(sampler_MainTex);
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                half _WaveSpeed;
+                half _WaveHeight;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                float3 pos = IN.positionOS.xyz;
+                pos.y += sin(pos.x * 3.0 + _Time.y * _WaveSpeed) * _WaveHeight;
+                OUT.positionHCS = TransformObjectToHClip(pos);
+                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
+                return OUT;
+            }
+            half4 frag(Varyings IN) : SV_Target { return SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv); }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 핵심: 변환 *전에* 정점 위치를 `sin(x + _Time.y*speed)` 로 수정. Plane/Quad 에 적용하세요.
 이 셰이더를 Plane 오브젝트에 적용하고 인스펙터에서 Wave Speed와 Wave Height 값을 조절해보세요.

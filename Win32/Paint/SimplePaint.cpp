@@ -1,4 +1,3 @@
-2. win api 예제
 // SimplePaint.cpp
 // Windows API를 사용하여 마우스로 그림을 그리는 예제 코드입니다.
 
@@ -164,4 +163,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
     return 0;
 }
-

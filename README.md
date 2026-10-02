@@ -6,8 +6,7 @@ This repository contains learning materials for shader programming.
 셰이더나 그래픽스가 처음이라면 Unity 환경에서 예제를 따라하며 기본기를 익히는 것을 추천합니다. 
 
 > **학습 순서와 검증 상태는 [docs/REVIEW.md](./docs/REVIEW.md) 를 먼저 보세요.**
-> 실행 가능한 코드는 Unity 프로젝트(`Unity shader/ShderTestProject`, Unity 2022.3 + URP 14)에 있고, 문서의 코드는 그 파일을 가리킵니다.
-> DirectX/HLSL 문서의 코드는 *발췌*이며 호스트(C++) 코드가 없어 그대로는 실행되지 않습니다.
+> 각 문서 맨 위에 **따라 하기 환경(도구 버전)과 순서**를 표시합니다. 문서의 코드는 문서 안에서 완결되도록 정리했습니다.
 
 # 목차
 
@@ -32,6 +31,7 @@ This repository contains learning materials for shader programming.
 
 ---
 
+* [**먼저 읽기: 실습 환경과 공통 규약**](./Shader%20Learning/0.%20실습%20환경과%20공통%20규약.md)
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
 * [HLSL/DirectX 학습자료 (1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20%28Part%201%29.md)
 * [HLSL/DirectX 학습자료 (2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20%28Part%202%29.md)
@@ -75,7 +75,7 @@ This repository contains learning materials for shader programming.
 - [2. Win API 그래픽, 입력 처리](./Win32/2.%20Win%20API%20그래픽,%20입력%20처리.md)  
 - [3. Win API 표준 컨트롤과 리소스 활용](./Win32/3.%20Win%20API%20학습%20표준%20컨트롤과%20리소스%20활용.md)  
 - [4. Win API 고급 시스템 프로그래밍](./Win32/4.%20Win%20API%20%20고급%20시스템%20프로그래밍.md)  
-- [Win API 예제 테스트 환경 활용 가이드](./Win32/Win%20API%20예제%20테스트%20환경%20활용%20가이드.md)  
+- [Win API 예제 테스트 환경 활용 가이드 (예제 파일별 빌드 순서 포함)](./Win32/Win%20API%20예제%20테스트%20환경%20활용%20가이드.md)  
 
 예제 코드  
 - [FileSearcher](./Win32/FileSearcher)  

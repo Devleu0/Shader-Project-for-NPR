@@ -1,4 +1,6 @@
 # DirectX 11 학습 3단계: 고급 (심화 기술 및 최적화)
+> **따라 하기**: 2단계까지의 프로그램에 기능을 추가하는 방식입니다. 이 문서의 코드는 셰이더 예제이며 호스트(C++) 코드는 포함하지 않습니다. 공통 규약은 [실습 환경과 공통 규약](../Shader%20Learning/0.%20실습%20환경과%20공통%20규약.md)을 읽으세요. 테셀레이션은 Feature Level 11_0 GPU 가 필요합니다. 작성자가 직접 컴파일하지는 않았습니다.
+
 ## 목표
 DirectX 11의 고급 렌더링 파이프라인을 완벽하게 이해하고, 테셀레이션, 컴퓨트 셰이더 등 최신 기술을 활용하여 렌더링 품질을 극대화합니다. 동시에 대규모 씬을 효율적으로 처리하기 위한 다양한 최적화 기법을 습득하여 실시간 렌더링 전문가로 거듭나는 것을 목표로 합니다.
 
@@ -63,8 +65,10 @@ GPU 프로파일링: PIX for Windows 같은 프로파일링 도구를 사용하�
 
 멀티스레드 렌더링: DirectX 11은 멀티스레딩을 지원합니다. 주 렌더링 스레드 외에 여러 작업 스레드에서 렌더링 명령 목록(Command List)을 미리 만들어두고(Deferred Context), 주 스레드에서는 이 목록들을 실행(ExecuteCommandList)만 함으로써 CPU 병목 현상을 완화하고 여러 CPU 코어를 효율적으로 활용할 수 있습니다.
 
+**호스트에서 할 일**: ① 토폴로지 `D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST`(삼각형 3개 제어점을 한 패치로), ② `CreateHullShader` / `CreateDomainShader` 후 `HSSetShader` / `DSSetShader`, ③ 상수 버퍼는 **DS 에도** 바인딩(`DSSetConstantBuffers`, DS 가 `View`/`Projection` 을 사용), 높이 텍스처와 샘플러도 `DSSetShaderResources`/`DSSetSamplers` 로 DS 에 바인딩, ④ 래스터라이저 상태를 와이어프레임(`D3D11_FILL_WIREFRAME`)으로 두면 세분화가 눈에 보입니다.
+
 ```hlsl
-// 테셀레이션을 위한 HLSL 예제 (디스플레이스먼트 매핑)
+// 테셀레이션을 위한 HLSL 예제 (디스플레이스먼트 매핑) — HS/DS 부분 발췌, PS 는 2단계 조명 셰이더를 사용
 
 // 필요한 상수 버퍼들
 cbuffer CbChangesEveryFrame : register(b0)
@@ -85,6 +89,15 @@ Texture2D txDisplacement : register(t0);
 Texture2D txDiffuse : register(t1);
 SamplerState samLinear : register(s0);
 
+
+// Domain Shader 출력 = 픽셀 셰이더 입력 (2단계의 PS_INPUT 과 동일한 구조)
+struct PS_INPUT
+{
+    float4 Pos      : SV_POSITION;
+    float3 Norm     : NORMAL;
+    float2 Tex      : TEXCOORD0;
+    float3 WorldPos : TEXCOORD1;
+};
 
 struct VS_INPUT
 {
@@ -157,6 +170,7 @@ PS_INPUT DS(HS_CONSTANT_DATA_OUTPUT input, float3 domain : SV_DomainLocation, co
     // 디스플레이스먼트 맵에서 높이 값을 읽어와 법선 방향으로 정점을 이동
     float displacement = txDisplacement.SampleLevel(samLinear, texCoord, 0).r;
     worldPos += (normal * displacement * 0.1f); // 0.1f는 강도 조절
+    // 주의: 정점을 옮긴 뒤에도 normal 은 원래 보간된 값이라 조명이 부정확하다. 정확히 하려면 노멀 맵이나 높이맵 기울기로 법선을 다시 구한다.
 
     // 최종 위치 변환
     output.Pos = mul(float4(worldPos, 1.0f), View);

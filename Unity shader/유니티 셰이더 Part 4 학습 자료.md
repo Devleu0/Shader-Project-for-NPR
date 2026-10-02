@@ -1,6 +1,8 @@
 ## 유니티 셰이더 Part 4 학습 자료
 이 문서는 '유니티 셰이더 16주 완성 커리큘럼'의 마지막 Part 4 학습 자료입니다. 포스트 프로세싱, 컴퓨트 셰이더, 최적화 등을 다루고, 최종 프로젝트를 통해 실전 역량을 완성하는 것을 목표로 합니다.
 
+> **따라 하기 환경**: Unity 2022.3 LTS + URP 14 (새 프로젝트 템플릿 `3D (URP)`). 이 문서의 코드는 URP 14 기준이며 Unity 6(URP 17)에서는 13주차 Renderer Feature 코드가 그대로 동작하지 않습니다. 코드는 직접 에디터에서 컴파일해 검증하지 못했으므로 콘솔 에러가 나면 코드와 에러 메시지를 대조해 보세요.
+
 ## 13주차: 포스트 프로세싱 (Post-processing)
 
 `포스트 프로세싱이란?`
@@ -19,13 +21,134 @@ URP에서는 Renderer Feature라는 스크립터블(Scriptable) 클래스를 통
 화면 전체를 흑백으로 만드는 간단한 그레이스케일(Grayscale) 포스트 프로세싱 효과를 만들어봅니다.
 
 1. 그레이스케일 셰이더 (PostGrayscale.shader)
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/PostProcess/PostGrayscale.shader`](./ShderTestProject/Assets/Shaders/PostProcess/PostGrayscale.shader)
+**파일: `Assets/Shaders/PostProcess/PostGrayscale.shader`**
+```hlsl
+// Part 4 : 전체 화면 그레이스케일. GrayscaleFeature.cs 가 Blitter 로 호출한다. (URP 14 / Unity 2022.3)
+// 일반 메시에 적용하는 셰이더가 아니다. Blit.hlsl 의 Vert 가 화면 전체 삼각형을 만든다.
+Shader "Hidden/PostProcess/Grayscale"
+{
+    Properties
+    {
+        _Intensity ("Intensity", Range(0,1)) = 1
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" }
+        ZWrite Off ZTest Always Cull Off
+        Pass
+        {
+            Name "Grayscale"
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+
+            half _Intensity;
+
+            half4 Frag(Varyings input) : SV_Target
+            {
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                half4 color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
+                half gray = dot(color.rgb, half3(0.299, 0.587, 0.114));
+                return half4(lerp(color.rgb, gray.xxx, _Intensity), color.a);
+            }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 전체 화면용 셰이더입니다(`Blit.hlsl` 의 `Vert` 사용). 일반 메시의 `TransformObjectToHClip` 방식으로는 화면 전체가 그려지지 않습니다.
 
 2. C# 스크립트 (GrayscaleFeature.cs)
 이 스크립트를 생성하여 URP Renderer 에셋에 추가해야 합니다.
-> **전체 코드(Unity 프로젝트에 포함)**: [`Scripts/PostProcess/GrayscaleFeature.cs`](./ShderTestProject/Assets/Scripts/PostProcess/GrayscaleFeature.cs)
-> 설정: URP Renderer 에셋 → Add Renderer Feature → Grayscale Feature → Shader 슬롯에 `Hidden/PostProcess/Grayscale` 셰이더 지정. 이전 코드의 `Blit(source, source)` 는 읽기/쓰기 대상이 같아 동작하지 않아 임시 RT 를 쓰도록 고쳤습니다. **Unity 2022.3(URP 14) 전용**입니다.
+**파일: `Assets/Scripts/PostProcess/GrayscaleFeature.cs`**
+```csharp
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+
+namespace ShaderStudy.PostProcess
+{
+    /// <summary>
+    /// URP 14(Unity 2022.3) 용 Renderer Feature. 카메라 컬러를 임시 RT 에 그레이스케일로 복사한 뒤 되돌려 쓴다.
+    /// "같은 텍스처를 읽으면서 동시에 쓰는" 것은 불가능하므로 임시 RT 를 거친다.
+    /// 주의: Unity 6(URP 17)의 RenderGraph 에서는 이 API 가 그대로 동작하지 않는다.
+    /// </summary>
+    public class GrayscaleFeature : ScriptableRendererFeature
+    {
+        [System.Serializable]
+        public class Settings
+        {
+            public Shader shader;
+            [Range(0f, 1f)] public float intensity = 1f;
+            public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+        }
+
+        public Settings settings = new Settings();
+        Material material;
+        GrayscalePass pass;
+
+        public override void Create()
+        {
+            if (settings.shader == null) return;
+            material = CoreUtils.CreateEngineMaterial(settings.shader);
+            pass = new GrayscalePass(material) { renderPassEvent = settings.renderPassEvent };
+        }
+
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            if (pass == null) return;
+            if (renderingData.cameraData.cameraType != CameraType.Game) return;
+            material.SetFloat("_Intensity", settings.intensity);
+            renderer.EnqueuePass(pass);
+        }
+
+        public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
+        {
+            // cameraColorTargetHandle 은 AddRenderPasses 시점에는 쓸 수 없고 여기서 접근해야 한다.
+            pass?.Setup(renderer.cameraColorTargetHandle);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            pass?.Dispose();
+            CoreUtils.Destroy(material);
+        }
+
+        class GrayscalePass : ScriptableRenderPass
+        {
+            readonly Material material;
+            RTHandle source;
+            RTHandle temp;
+
+            public GrayscalePass(Material material) { this.material = material; }
+            public void Setup(RTHandle source) { this.source = source; }
+
+            public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+            {
+                var desc = renderingData.cameraData.cameraTargetDescriptor;
+                desc.depthBufferBits = 0;
+                RenderingUtils.ReAllocateIfNeeded(ref temp, desc, name: "_GrayscaleTemp");
+            }
+
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = CommandBufferPool.Get("Grayscale");
+                Blitter.BlitCameraTexture(cmd, source, temp, material, 0); // source -> temp (셰이더 적용)
+                Blitter.BlitCameraTexture(cmd, temp, source);              // temp -> source (복사)
+                context.ExecuteCommandBuffer(cmd);
+                CommandBufferPool.Release(cmd);
+            }
+
+            public void Dispose() { temp?.Release(); }
+        }
+    }
+}
+```
+
+> 설정: URP Renderer 에셋 → Add Renderer Feature → Grayscale Feature → Shader 슬롯에 `Hidden/PostProcess/Grayscale` 셰이더 지정. **Unity 2022.3(URP 14) 전용**입니다.
 
 ## 14주차: 컴퓨트 셰이더 (Compute Shader)
 
@@ -48,11 +171,142 @@ GPU를 그래픽 렌더링뿐만 아니라 일반적인 대규모 병렬 연산(
 수많은 파티클의 위치를 컴퓨트 셰이더로 동시에 업데이트하는 예제입니다.
 
 1. 컴퓨트 셰이더 (ParticleUpdate.compute)
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Compute/ParticleUpdate.compute`](./ShderTestProject/Assets/Shaders/Compute/ParticleUpdate.compute)
+**파일: `Assets/Shaders/Compute/ParticleUpdate.compute`**
+```hlsl
+// Part 4 : 파티클 위치 갱신 컴퓨트 셰이더
+#pragma kernel CSMain
+
+struct Particle
+{
+    float3 position;
+    float3 velocity;
+};
+
+RWStructuredBuffer<Particle> _Particles;
+float  _DeltaTime;
+float3 _Bounds;
+uint   _Count;
+
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Count) return; // 스레드 수는 64의 배수로 올림되므로 범위 밖 스레드를 반드시 걸러낸다
+
+    Particle p = _Particles[id.x];
+    p.position += p.velocity * _DeltaTime;
+
+    // 경계에서 반사 (위치도 경계 안으로 되돌려 떨림 방지)
+    if (abs(p.position.x) > _Bounds.x) { p.velocity.x *= -1; p.position.x = clamp(p.position.x, -_Bounds.x, _Bounds.x); }
+    if (abs(p.position.y) > _Bounds.y) { p.velocity.y *= -1; p.position.y = clamp(p.position.y, -_Bounds.y, _Bounds.y); }
+    if (abs(p.position.z) > _Bounds.z) { p.velocity.z *= -1; p.position.z = clamp(p.position.z, -_Bounds.z, _Bounds.z); }
+
+    _Particles[id.x] = p;
+}
+```
+
 > `_Count` 로 범위 밖 스레드를 걸러야 합니다(스레드 수는 64의 배수로 올림됨).
 
-2. C# 디스패처 스크립트 (ParticleController.cs)
-> **전체 코드(Unity 프로젝트에 포함)**: [`Scripts/Compute/ParticleController.cs`](./ShderTestProject/Assets/Scripts/Compute/ParticleController.cs)
+2. 파티클 그리기 셰이더 (ParticleRender.shader) — 버퍼의 위치를 읽어 점으로 그립니다.
+
+**파일: `Assets/Shaders/Compute/ParticleRender.shader`**
+```hlsl
+// Part 4 : StructuredBuffer 의 위치를 읽어 점으로 그린다. (Graphics.DrawProcedural + MeshTopology.Points)
+// DX11/DX12 에서 점은 1픽셀이다. 크기를 키우려면 쿼드로 확장하는 방식(지오메트리/인스턴싱)이 필요하다.
+Shader "Lessons/ParticleRender"
+{
+    Properties { _Color ("Color", Color) = (1, 0.8, 0.2, 1) }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" }
+        Pass
+        {
+            HLSLPROGRAM
+            #pragma target 4.5
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Particle { float3 position; float3 velocity; };
+            StructuredBuffer<Particle> _Particles;
+            half4 _Color;
+
+            struct Varyings { float4 positionHCS : SV_POSITION; };
+
+            Varyings vert(uint vertexID : SV_VertexID)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformWorldToHClip(_Particles[vertexID].position);
+                return OUT;
+            }
+            half4 frag(Varyings IN) : SV_Target { return _Color; }
+            ENDHLSL
+        }
+    }
+}
+```
+
+3. C# 디스패처 스크립트 (ParticleController.cs)
+**파일: `Assets/Scripts/Compute/ParticleController.cs`**
+```csharp
+using UnityEngine;
+
+namespace ShaderStudy.Compute
+{
+    /// <summary>
+    /// ParticleUpdate.compute 로 파티클을 갱신하고 ParticleRender 머티리얼로 그린다.
+    /// 사용법: 빈 오브젝트에 붙이고 computeShader / renderMaterial 을 연결한다.
+    /// </summary>
+    public class ParticleController : MonoBehaviour
+    {
+        // C# 구조체와 HLSL 구조체의 메모리 배치가 같아야 한다: float3 + float3 = 24바이트
+        struct Particle { public Vector3 position; public Vector3 velocity; }
+        const int Stride = sizeof(float) * 6;
+        const int ThreadsPerGroup = 64; // .compute 의 numthreads(64,1,1) 과 반드시 일치
+
+        [SerializeField] ComputeShader computeShader;
+        [SerializeField] Material renderMaterial;
+        [SerializeField, Min(1)] int particleCount = 10000;
+        [SerializeField] Vector3 bounds = new Vector3(5, 5, 5);
+
+        ComputeBuffer buffer;
+        int kernel;
+
+        void Start()
+        {
+            var data = new Particle[particleCount];
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i].position = Vector3.Scale(Random.insideUnitSphere, bounds);
+                data[i].velocity = Random.onUnitSphere * Random.Range(0.5f, 2f);
+            }
+            buffer = new ComputeBuffer(particleCount, Stride);
+            buffer.SetData(data);
+
+            kernel = computeShader.FindKernel("CSMain");
+            computeShader.SetBuffer(kernel, "_Particles", buffer);
+            computeShader.SetInt("_Count", particleCount);
+            computeShader.SetVector("_Bounds", bounds);
+            renderMaterial.SetBuffer("_Particles", buffer);
+        }
+
+        void Update()
+        {
+            computeShader.SetFloat("_DeltaTime", Time.deltaTime);
+            computeShader.Dispatch(kernel, Mathf.CeilToInt(particleCount / (float)ThreadsPerGroup), 1, 1);
+
+            var drawBounds = new Bounds(transform.position, bounds * 2f);
+            Graphics.DrawProcedural(renderMaterial, drawBounds, MeshTopology.Points, particleCount);
+        }
+
+        void OnDestroy()
+        {
+            buffer?.Release();
+            buffer = null;
+        }
+    }
+}
+```
+
 > 사용법: 빈 오브젝트에 붙이고 Compute Shader 와 `Lessons/ParticleRender` 머티리얼을 연결. C#·HLSL 구조체 stride(24바이트)와 `numthreads` 값이 일치해야 합니다.
 
 ## 15주차: 셰이더 최적화

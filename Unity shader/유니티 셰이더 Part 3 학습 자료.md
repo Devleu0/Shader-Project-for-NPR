@@ -1,6 +1,8 @@
 ## 유니티 셰이더 Part 3 학습 자료
 이 문서는 '유니티 셰이더 16주 완성 커리큘럼'의 Part 3 학습 자료입니다. 노멀 매핑, 프레넬, 디졸브 등 고급 셰이더 기법을 학습하고, 셰이더 그래프를 체험합니다.
 
+> **따라 하기 환경**: Unity 2022.3 LTS + URP 14 (새 프로젝트 템플릿 `3D (URP)`). 셰이더는 `Project 창 → Create → Shader → Unlit Shader`(또는 Empty Shader)로 파일을 만들고 내용을 전부 붙여 넣은 뒤, 셰이더 우클릭 → Create → Material → 오브젝트에 적용합니다. 코드는 에디터에서 직접 컴파일해 검증하지 못했으므로 콘솔 에러가 나면 알려 주세요.
+
 ## 9주차: 노멀 매핑과 고급 텍스처
 
 `노멀 맵 (Normal Map)`
@@ -23,7 +25,92 @@
 노멀 맵에 저장된 법선은 탄젠트 공간 기준이므로, 조명 벡터와 같은 공간에서 계산해야 합니다. 두 가지 방법이 있습니다: (a) 광원/시선 벡터를 탄젠트 공간으로 보낸다, (b) 노멀 맵의 법선을 TBN 행렬로 **월드 공간으로 변환**한다. 이 문서의 예제는 (b)를 사용합니다.
 
 Part 2에서 만들었던 Blinn-Phong 셰이더에 노멀 매핑을 추가하는 코드입니다.
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/NormalMapped.shader`](./ShderTestProject/Assets/Shaders/Lessons/NormalMapped.shader)
+**파일: `Assets/Shaders/Lessons/NormalMapped.shader`**
+```hlsl
+// Part 3 : 노멀 매핑 (탄젠트 공간 -> 월드 공간) + Lambert + Blinn-Phong
+Shader "Lessons/NormalMapped"
+{
+    Properties
+    {
+        _BaseColor ("Base Color", Color) = (1,1,1,1)
+        _MainTex ("Base Texture", 2D) = "white" {}
+        [Normal] _NormalMap ("Normal Map", 2D) = "bump" {}
+        _NormalScale ("Normal Scale", Range(0,2)) = 1
+        _Shininess ("Shininess", Range(0.1, 100)) = 20
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS   : NORMAL;
+                float4 tangentOS  : TANGENT;
+                float2 uv         : TEXCOORD0;
+            };
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+                float2 uv          : TEXCOORD0;
+                float3 normalWS    : TEXCOORD1;
+                float3 tangentWS   : TEXCOORD2;
+                float3 bitangentWS : TEXCOORD3;
+                float3 positionWS  : TEXCOORD4;
+            };
+
+            TEXTURE2D(_MainTex);   SAMPLER(sampler_MainTex);
+            TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                half4 _BaseColor;
+                half _NormalScale;
+                half _Shininess;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionWS  = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
+                OUT.uv          = TRANSFORM_TEX(IN.uv, _MainTex);
+                OUT.normalWS    = TransformObjectToWorldNormal(IN.normalOS);
+                OUT.tangentWS   = TransformObjectToWorldDir(IN.tangentOS.xyz);
+                // tangent.w 는 바이탄젠트 방향(좌/우수 좌표계 보정)
+                OUT.bitangentWS = cross(OUT.normalWS, OUT.tangentWS) * IN.tangentOS.w * GetOddNegativeScale();
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half3 normalTS = UnpackNormalScale(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv), _NormalScale);
+                float3x3 tbn = float3x3(normalize(IN.tangentWS), normalize(IN.bitangentWS), normalize(IN.normalWS));
+                float3 N = normalize(TransformTangentToWorld(normalTS, tbn));
+
+                Light light = GetMainLight();
+                float3 L = light.direction;
+                float3 V = GetWorldSpaceNormalizeViewDir(IN.positionWS);
+                float3 H = normalize(L + V);
+
+                half3 albedo = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv).rgb * _BaseColor.rgb;
+                half diffuse = saturate(dot(N, L));
+                half specular = pow(saturate(dot(N, H)), _Shininess) * step(0.0, diffuse);
+                return half4((albedo * diffuse + specular) * light.color, 1);
+            }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 핵심: TBN 행렬로 노멀맵(탄젠트 공간)을 월드 공간으로 변환. 노멀맵 텍스처의 Texture Type 을 Normal map 으로 지정해야 합니다.
 
 ## 10주차: 프레넬과 림 라이팅
@@ -40,7 +127,61 @@ Part 2에서 만들었던 Blinn-Phong 셰이더에 노멀 매핑을 추가하는
 
 
 오브젝트의 외곽선에 지정된 색상의 빛이 감돌게 하는 림 라이팅 셰이더 코드입니다.
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/SimpleRim.shader`](./ShderTestProject/Assets/Shaders/Lessons/SimpleRim.shader)
+**파일: `Assets/Shaders/Lessons/SimpleRim.shader`**
+```hlsl
+// Part 3 : 프레넬 림 라이트
+Shader "Lessons/SimpleRim"
+{
+    Properties
+    {
+        _BaseColor ("Base Color", Color) = (1,1,1,1)
+        _RimColor ("Rim Color", Color) = (0,1,1,1)
+        _RimPower ("Rim Power", Range(0.1, 10)) = 3
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; };
+            struct Varyings   { float4 positionHCS : SV_POSITION; float3 normalWS : TEXCOORD0; float3 positionWS : TEXCOORD1; };
+            CBUFFER_START(UnityPerMaterial)
+                half4 _BaseColor;
+                half4 _RimColor;
+                half  _RimPower;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionWS  = TransformObjectToWorld(IN.positionOS.xyz);
+                OUT.positionHCS = TransformWorldToHClip(OUT.positionWS);
+                OUT.normalWS    = TransformObjectToWorldNormal(IN.normalOS);
+                return OUT;
+            }
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float3 N = normalize(IN.normalWS);
+                float3 V = GetWorldSpaceNormalizeViewDir(IN.positionWS);
+                Light light = GetMainLight();
+                half lambert = saturate(dot(N, light.direction));
+                half rim = pow(1.0 - saturate(dot(N, V)), _RimPower);
+                half3 color = _BaseColor.rgb * lambert * light.color + _RimColor.rgb * rim;
+                return half4(color, 1);
+            }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 핵심: `rim = pow(1 - saturate(dot(N,V)), _RimPower)`.
 
 ## 11주차: 디졸브 및 왜곡 효과
@@ -59,7 +200,59 @@ Part 2에서 만들었던 Blinn-Phong 셰이더에 노멀 매핑을 추가하는
 
 
 임계값에 따라 오브젝트가 사라지는 디졸브 셰이더 코드입니다.
-> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/SimpleDissolve.shader`](./ShderTestProject/Assets/Shaders/Lessons/SimpleDissolve.shader)
+**파일: `Assets/Shaders/Lessons/SimpleDissolve.shader`**
+```hlsl
+// Part 3 : 노이즈 텍스처 + clip 으로 만드는 디졸브
+Shader "Lessons/SimpleDissolve"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+        _NoiseTex ("Noise Texture", 2D) = "gray" {}
+        _Threshold ("Dissolve Threshold", Range(0,1)) = 0.5
+    }
+    SubShader
+    {
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
+        Pass
+        {
+            Tags { "LightMode"="UniversalForward" }
+            Cull Off
+            HLSLPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings   { float4 positionHCS : SV_POSITION; float2 uv : TEXCOORD0; };
+            TEXTURE2D(_MainTex);  SAMPLER(sampler_MainTex);
+            TEXTURE2D(_NoiseTex); SAMPLER(sampler_NoiseTex);
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float4 _NoiseTex_ST;
+                half _Threshold;
+            CBUFFER_END
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
+                return OUT;
+            }
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+                half noise = SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, IN.uv).r;
+                clip(noise - _Threshold);
+                return color;
+            }
+            ENDHLSL
+        }
+    }
+}
+```
+
 > 핵심: 노이즈 R 값 - _Threshold 를 `clip`. Threshold 슬라이더를 0→1 로 움직이면 사라집니다.
 
 ## 12주차: 셰이더 그래프 (Shader Graph)

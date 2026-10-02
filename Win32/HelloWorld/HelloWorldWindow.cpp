@@ -1,4 +1,3 @@
-1. win api 예제
 // HelloWorldWindow.cpp
 // Windows API를 사용하여 기본적인 윈도우를 생성하는 예제 코드입니다.
 
