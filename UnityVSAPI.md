@@ -118,13 +118,15 @@ context->VSSetConstantBuffers(0, 1, &constantBuffer);
 
 * Unity에서는 **"재질(Material)" 중심** → 내부적으로 셰이더/리소스/파이프라인 상태를 관리.
 * 실제 API에서는 **셰이더, 버퍼, 파이프라인 상태**를 **직접 연결**해야 함.
-* 즉, Unity가 추상화해준 "머티리얼 시스템"과 "렌더링 파이프라인"을 **수동으로 만드는 것**이 실제 API 프로그래밍.
+* 즉, Unity가 추상화해준 "머티리얼 시스템"과 "렌더링 파이프라인"을 **수동으로 만드는 것**이 실제 API 프로그래밍입니다.
 
 ---
 
 # Unity ShaderLab vs 실제 API 셰이더 코드 비교
 
 ## 1. Unity에서 쓰던 가장 단순한 Unlit Shader
+
+> 아래 Unity 코드는 **Built-in 파이프라인(CG)** 문법입니다. URP 는 `HLSLPROGRAM` + `TransformObjectToHClip` 을 씁니다. 비교 목적의 개념 예시이며, D3D11 쪽 C++ 조각은 호스트 전체 코드가 아닙니다 ([DirectX 11 1단계](./Directx11/DirectX%2011%201단계.md) 의 `main.cpp` 에 이어 붙이세요).
 
 ```c
 Shader "Custom/UnlitColor"
