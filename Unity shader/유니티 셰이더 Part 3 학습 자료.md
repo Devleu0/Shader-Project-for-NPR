@@ -20,89 +20,11 @@
 
 `Bitangent (B)`: 표면의 세로 방향 (보통 UV의 V 방향)
 
-노멀 맵에 저장된 법선 정보는 이 탄젠트 공간을 기준으로 하므로, 조명 계산을 할 때 광원과 시선 벡터 등도 모두 탄젠트 공간으로 변환하여 계산해야 합니다.
+노멀 맵에 저장된 법선은 탄젠트 공간 기준이므로, 조명 벡터와 같은 공간에서 계산해야 합니다. 두 가지 방법이 있습니다: (a) 광원/시선 벡터를 탄젠트 공간으로 보낸다, (b) 노멀 맵의 법선을 TBN 행렬로 **월드 공간으로 변환**한다. 이 문서의 예제는 (b)를 사용합니다.
 
 Part 2에서 만들었던 Blinn-Phong 셰이더에 노멀 매핑을 추가하는 코드입니다.
-```c
-// 유니티 셰이더 파일: NormalMapped.shader
-Shader "MyShaders/NormalMapped"
-{
-    Properties
-    {
-        _BaseColor ("Base Color", Color) = (1,1,1,1)
-        _MainTex ("Base Texture", 2D) = "white" {}
-        _NormalMap ("Normal Map", 2D) = "bump" {} // 'bump'는 기본 노멀맵을 의미
-        _Shininess ("Shininess", Range(0.1, 100)) = 20
-    }
-    SubShader
-    {
-        Tags { "RenderPipeline" = "UniversalPipeline", "RenderType"="Opaque" }
-        Pass
-        {
-            Tags { "LightMode" = "UniversalForward" }
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-
-            struct Attributes
-            {
-                float4 positionOS   : POSITION;
-                float3 normalOS     : NORMAL;
-                float4 tangentOS    : TANGENT; // 정점의 탄젠트 벡터 입력
-                float2 uv           : TEXCOORD0;
-            };
-
-            struct Varyings
-            {
-                float4 positionHCS  : SV_POSITION;
-                float2 uv           : TEXCOORD0;
-                float3 normalWS     : TEXCOORD1;
-                float3 tangentWS    : TEXCOORD2;
-                float3 bitangentWS  : TEXCOORD3;
-                float3 positionWS   : TEXCOORD4;
-            };
-            
-            // ... (CBUFFER, TEXTURE2D 등 선언)
-            TEXTURE2D(_NormalMap);
-            SAMPLER(sampler_NormalMap);
-
-            Varyings vert (Attributes IN)
-            {
-                Varyings OUT;
-                // ... (positionHCS, positionWS 계산)
-                OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-                OUT.positionHCS = TransformObjectToHClip(OUT.positionWS);
-                OUT.uv = IN.uv;
-                
-                // TBN 벡터를 월드 공간으로 변환
-                OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
-                OUT.tangentWS = TransformObjectToWorldDir(IN.tangentOS.xyz);
-                OUT.bitangentWS = cross(OUT.normalWS, OUT.tangentWS) * IN.tangentOS.w;
-                return OUT;
-            }
-
-            half4 frag (Varyings IN) : SV_Target
-            {
-                // TBN 행렬 생성 (월드->탄젠트 공간 변환용)
-                float3x3 tbn = float3x3(normalize(IN.tangentWS), normalize(IN.bitangentWS), normalize(IN.normalWS));
-
-                // 노멀 맵에서 법선 정보 샘플링
-                float3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, IN.uv));
-                // 샘플링된 탄젠트 공간 법선을 월드 공간으로 변환
-                float3 normalWS = TransformTangentToWorld(normalTS, tbn);
-                
-                // ... (Blinn-Phong 조명 계산은 normalWS를 사용해 동일하게 수행)
-                // ...
-                return half4(finalColor, 1.0);
-            }
-            ENDHLSL
-        }
-    }
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/NormalMapped.shader`](./ShderTestProject/Assets/Shaders/Lessons/NormalMapped.shader)
+> 핵심: TBN 행렬로 노멀맵(탄젠트 공간)을 월드 공간으로 변환. 노멀맵 텍스처의 Texture Type 을 Normal map 으로 지정해야 합니다.
 
 ## 10주차: 프레넬과 림 라이팅
 
@@ -118,54 +40,8 @@ Shader "MyShaders/NormalMapped"
 
 
 오브젝트의 외곽선에 지정된 색상의 빛이 감돌게 하는 림 라이팅 셰이더 코드입니다.
-```c
-// 유니티 셰이더 파일: SimpleRim.shader
-Shader "MyShaders/SimpleRim"
-{
-    Properties
-    {
-        _BaseColor ("Base Color", Color) = (1,1,1,1)
-        _RimColor ("Rim Color", Color) = (0,1,1,1)
-        _RimPower ("Rim Power", Range(0.1, 10.0)) = 3.0
-    }
-    SubShader
-    {
-        // ... (기본 구조)
-        Pass
-        {
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // ... (include, structs)
-
-            CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                half4 _RimColor;
-                half _RimPower;
-            CBUFFER_END
-            
-            // ... (vert 함수는 램버트 셰이더와 거의 동일, positionWS, normalWS 전달)
-
-            half4 frag (Varyings IN) : SV_Target
-            {
-                // ... (램버트 조명 계산)
-
-                // 프레넬/림 라이팅 계산
-                float3 normalWS = normalize(IN.normalWS);
-                float3 viewDir = normalize(_WorldSpaceCameraPos - IN.positionWS);
-                half fresnel = 1.0 - saturate(dot(normalWS, viewDir));
-                half rim = pow(fresnel, _RimPower);
-
-                // 최종 색상 = 기본 조명 색상 + 림 라이팅 색상
-                half3 finalColor = (_BaseColor.rgb * lambert * mainLight.color) + (_RimColor.rgb * rim);
-
-                return half4(finalColor, 1.0);
-            }
-            ENDHLSL
-        }
-    }
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/SimpleRim.shader`](./ShderTestProject/Assets/Shaders/Lessons/SimpleRim.shader)
+> 핵심: `rim = pow(1 - saturate(dot(N,V)), _RimPower)`.
 
 ## 11주차: 디졸브 및 왜곡 효과
 
@@ -179,45 +55,12 @@ Shader "MyShaders/SimpleRim"
 임계값 주변에 특정 색상을 더해주면 타들어 가는 듯한 테두리 효과`(Burn Edge)`를 추가할 수 있습니다.
 
 `왜곡/굴절 효과 (Distortion/Refraction)`
-GrabPass를 이용해 셰이더가 렌더링될 시점의 화면(배경)을 텍스처로 가져올 수 있습니다. 이 텍스처를 샘플링할 UV 좌표를 노멀 맵 등을 이용해 살짝 왜곡하면, 배경이 아지랑이나 유리를 통해 보는 것처럼 굴절되어 보이는 효과를 만들 수 있습니다.
+배경 화면을 텍스처로 가져와야 합니다. Built-in 파이프라인에서는 `GrabPass`를 쓰지만, **URP 에서는 `GrabPass`가 지원되지 않으므로** URP 에셋에서 Opaque Texture 를 켜고 `_CameraOpaqueTexture` 를 샘플링합니다(`SampleSceneColor`). 이 텍스처를 샘플링할 UV 좌표를 노멀 맵 등을 이용해 살짝 왜곡하면, 배경이 아지랑이나 유리를 통해 보는 것처럼 굴절되어 보이는 효과를 만들 수 있습니다.
 
 
 임계값에 따라 오브젝트가 사라지는 디졸브 셰이더 코드입니다.
-```c
-// 유니티 셰이더 파일: SimpleDissolve.shader
-Shader "MyShaders/SimpleDissolve"
-{
-    Properties
-    {
-        _MainTex ("Texture", 2D) = "white" {}
-        _NoiseTex ("Noise Texture", 2D) = "gray" {}
-        _Threshold ("Dissolve Threshold", Range(0.0, 1.0)) = 0.5
-    }
-    SubShader
-    {
-        Tags { "RenderType"="TransparentCutout" } // Cutout과 유사
-        Pass
-        {
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // ... (include, structs, CBUFFER, TEXTURE2D)
-
-            half4 frag (Varyings IN) : SV_Target
-            {
-                half4 mainColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
-                half noiseValue = SAMPLE_TEXTURE2D(_NoiseTex, sampler_NoiseTex, IN.uv).r; // 노이즈 텍스처의 R 채널 값 사용
-
-                // 노이즈 값이 임계값보다 작으면 픽셀 렌더링 중단
-                clip(noiseValue - _Threshold);
-
-                return mainColor;
-            }
-            ENDHLSL
-        }
-    }
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/SimpleDissolve.shader`](./ShderTestProject/Assets/Shaders/Lessons/SimpleDissolve.shader)
+> 핵심: 노이즈 R 값 - _Threshold 를 `clip`. Threshold 슬라이더를 0→1 로 움직이면 사라집니다.
 
 ## 12주차: 셰이더 그래프 (Shader Graph)
  
@@ -240,7 +83,7 @@ Shader "MyShaders/SimpleDissolve"
 
 #### 10주차의 '림 라이팅' 효과를 셰이더 그래프로 구현해봅시다.
 
-* Create > Shader > URP > Lit Shader Graph로 새 셰이더 그래프를 생성합니다.
+* Project 창에서 Create > Shader Graph > URP > Lit Shader Graph 로 새 셰이더 그래프를 생성합니다. (Unity 버전에 따라 메뉴 이름이 조금 다를 수 있습니다.)
 
 * 프로퍼티(Properties) 추가: Blackboard에서 _RimColor (Color), _RimPower (Float) 프로퍼티를 추가합니다.
 
@@ -262,4 +105,4 @@ Shader "MyShaders/SimpleDissolve"
 
 * 기존의 Base Color에 Add 노드를 이용해 림 라이팅 결과를 더합니다.
 
-* 최종 결과를 Master Node의 Base Color 슬롯에 연결합니다.
+* 최종 결과를 Fragment 컨텍스트(구 Master Node)의 Base Color 슬롯에 연결합니다.
