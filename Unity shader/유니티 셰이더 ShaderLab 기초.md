@@ -460,3 +460,68 @@ Shader "Example/MultiPass"
 
 ---
 
+## Unity가 텍스처 프로퍼티를 정의할 때 자동으로 제공하는 변수
+
+> 아래 `fixed4` / `tex2D` 예시는 **Built-in 문법**입니다. URP 에서는 `half4` / `SAMPLE_TEXTURE2D(tex, sampler, uv)` 로 바꿔 쓰세요. `_ST`, `_TexelSize`, `_HDR` 변수 자체는 URP 에서도 동일하게 제공됩니다.
+
+## 1. _ST (Scale, Translation)
+
+ float4 _Name_ST
+ 타일링(Tiling)과 오프셋(Offset)
+
+`.xy → Tiling 값`
+`.zw → Offset 값`
+
+```hlsl
+uv = uv * _MainTex_ST.xy + _MainTex_ST.zw;
+```
+---
+
+## 2. _TexelSize
+
+ float4 _Name_TexelSize
+ 텍스처의 픽셀 크기 정보
+
+`.x = 1 / width`
+`.y = 1 / height`
+`.z = width`
+`.w = height`
+
+주로 블러, 포스트 프로세싱, 커널 샘플링할 때 사용.
+
+```hlsl
+float2 texel = _MainTex_TexelSize.xy; // 한 픽셀 크기
+fixed4 c = tex2D(_MainTex, uv + texel); // 옆 픽셀 샘플링
+```
+
+
+## 3. _HDR (HDR 관련)
+
+ float4 _Name_HDR
+ HDR 텍스처를 다룰 때 감마 보정이나 노출 보정을 위해 Unity가 제공.
+
+색 공간 변환 및 HDR 파라미터 저장용.
+Lightmap, Reflection Probe 텍스처에 자주 따라옴.
+
+
+
+## 4. _TexelSize와 _ST를 함께 활용하는 경우
+
+예를 들어 포스트 프로세싱 블러 셰이더에서
+```hlsl
+float2 uv = i.uv * _MainTex_ST.xy + _MainTex_ST.zw; // 타일링/오프셋 적용
+float2 texel = _MainTex_TexelSize.xy; // 픽셀 크기
+fixed4 col = tex2D(_MainTex, uv + texel * float2(1,0)); // 오른쪽 이웃 픽셀 샘플링
+```
+
+
+## 자동 제공 규칙 정리
+
+반드시 Properties 블록에 텍스처를 정의해야 함.
+
+이름 규칙
+```cg
+_MainTex → _MainTex_ST, _MainTex_TexelSize
+_NormalMap → _NormalMap_ST, _NormalMap_TexelSize
+```
+Unity의 머티리얼 인스펙터에서 Tiling / Offset / 텍스처 크기를 변경하면 이 값들이 자동 업데이트됨.
