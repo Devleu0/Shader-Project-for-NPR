@@ -13,7 +13,7 @@
 - 식
 ```math
 I_{diffuse} = k_d I_L \max(0, \mathbf{N}\cdot\mathbf{L})
-````
+```
 
 * 벡터 관계
   $\mathbf{N}\cdot\mathbf{L} = \|\mathbf{N}\|\|\mathbf{L}\|\cos\theta = \cos\theta$ (단위벡터 기준)
@@ -161,7 +161,7 @@ Shader "MyShaders/SimpleLambert"
                 // 램버트 조명 계산: 내적 결과는 0 이하가 되지 않도록 saturate 처리
                 half lambert = saturate(dot(normalWS, lightDir));
 
-                // 최종 색상 = 기본색 * 난반사광 + 환경광
+                // 최종 색상 = 기본색 * 난반사광 * 광원색 (이 예제에는 환경광(Ambient)이 없다)
                 // mainLight.color는 빛의 색상과 강도를 포함
                 half3 finalColor = _BaseColor.rgb * lambert * mainLight.color;
 
@@ -180,7 +180,7 @@ Shader "MyShaders/SimpleLambert"
 
 `View Direction:` 표면에서 카메라(시점)를 향하는 벡터.
 
-`Light Direction:` 광원에서 표면을 향하는 벡터.
+`Light Direction:` 표면에서 **광원을 향하는** 벡터. (URP 의 `mainLight.direction` 이 이 방향이며, 빛이 진행하는 방향의 반대입니다. 그래서 `dot(N, L)` 이 정면일 때 양수가 됩니다.)
 
 `Halfway Vector:` View Direction과 Light Direction의 중간 벡터. normalize(viewDir + lightDir)로 계산합니다.
 
@@ -188,46 +188,8 @@ Shader "MyShaders/SimpleLambert"
 
 
 5챕터 코드에 Blinn-Phong 정반사 계산을 추가한 코드입니다.
-```c
-// 셰이더 경로: "MyShaders/SimpleBlinnPhong"
-// Properties에 추가:
-_Shininess ("Shininess", Range(0.1, 100)) = 20
-
-// Varyings 구조체에 추가:
-float3 positionWS     : TEXCOORD1; // 월드 공간 정점 위치
-
-// CBUFFER에 추가:
-half _Shininess;
-
-// vert 함수에 추가:
-OUT.positionWS = TransformObjectToWorld(IN.positionOS.xyz);
-
-// frag 함수 수정:
-half4 frag (Varyings IN) : SV_Target
-{
-    // ... (램버트 계산까지는 동일)
-
-    // Blinn-Phong 계산에 필요한 벡터들
-    float3 normalWS = normalize(IN.normalWS);
-    Light mainLight = GetMainLight();
-    float3 lightDir = mainLight.direction;
-
-    // 카메라 위치는 URP 전역 변수 _WorldSpaceCameraPos 에서 가져옴
-    float3 viewDir = normalize(_WorldSpaceCameraPos - IN.positionWS);
-    float3 halfwayDir = normalize(lightDir + viewDir);
-
-    // 정반사(Specular) 계산
-    half specular = pow(saturate(dot(normalWS, halfwayDir)), _Shininess);
-
-    // 난반사(Diffuse) 계산
-    half lambert = saturate(dot(normalWS, lightDir));
-
-    // 최종 색상 = (난반사 + 정반사) * 빛 색상 * 기본 색상
-    half3 finalColor = (_BaseColor.rgb * lambert + specular) * mainLight.color;
-
-    return half4(finalColor, 1.0);
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/BlinnPhong.shader`](./ShderTestProject/Assets/Shaders/Lessons/BlinnPhong.shader)
+> 핵심: `H = normalize(L + V)`, `pow(saturate(dot(N,H)), _Shininess)`. 이전 문서의 발췌 코드는 변수 선언이 빠져 컴파일되지 않아 완성 파일로 교체했습니다.
 
 ## 7챕터: 투명도와 블렌딩
 `알파 블렌딩 (Alpha Blending)`
@@ -246,50 +208,11 @@ half4 frag (Varyings IN) : SV_Target
 
 
 1. 반투명 유리 셰이더
-```c
-Shader "MyShaders/TransparentGlass"
-{
-    Properties
-    {
-        _Color ("Color", Color) = (1,1,1,0.5)
-    }
-    SubShader
-    {
-        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
-        Pass
-        {
-            ZWrite Off
-            Blend SrcAlpha OneMinusSrcAlpha
-
-            HLSLPROGRAM
-            // ... (vert, frag 기본 구조)
-            half4 frag (Varyings IN) : SV_Target
-            {
-                return _Color; // Properties에서 설정한 색상과 알파값 반환
-            }
-            ENDHLSL
-        }
-    }
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/TransparentGlass.shader`](./ShderTestProject/Assets/Shaders/Lessons/TransparentGlass.shader)
+> 핵심: `Queue=Transparent`, `ZWrite Off`, `Blend SrcAlpha OneMinusSrcAlpha`. Color 의 A 를 낮춰 보세요.
 2. Cutout 셰이더
-```c
-// Properties에 추가:
-_MainTex ("Texture", 2D) = "white" {}
-_Cutoff ("Alpha Cutoff", Range(0.0, 1.0)) = 0.5
-
-// Pass 태그 수정:
-Tags { "RenderType"="TransparentCutout" }
-
-// frag 함수 수정:
-half4 frag (Varyings IN) : SV_Target
-{
-    half4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
-    // 텍스처의 알파값이 _Cutoff 값보다 작으면 픽셀을 버림
-    clip(texColor.a - _Cutoff);
-    return texColor;
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/AlphaCutout.shader`](./ShderTestProject/Assets/Shaders/Lessons/AlphaCutout.shader)
+> 핵심: `clip(tex.a - _Cutoff)`. 알파가 있는 PNG(예: 나뭇잎)를 _MainTex 에 넣어 테스트하세요.
 
 ## 8챕터: 정점 셰이더 활용
 
@@ -301,55 +224,6 @@ _Time 변수`
 
 `과제 가이드`
 바람에 흔들리는 깃발처럼 평면(Plane)을 위아래로 출렁이게 하는 셰이더 코드입니다.
-```c
-// 유니티 셰이더 파일: WavingFlag.shader
-Shader "MyShaders/WavingFlag"
-{
-    Properties
-    {
-        _MainTex ("Texture", 2D) = "white" {}
-        _WaveSpeed ("Wave Speed", Float) = 1.0
-        _WaveHeight ("Wave Height", Float) = 0.1
-    }
-    SubShader
-    {
-        // ... (기본 구조)
-        Pass
-        {
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // ... (include, structs)
-
-            CBUFFER_START(UnityPerMaterial)
-                float4 _MainTex_ST;
-                half _WaveSpeed;
-                half _WaveHeight;
-            CBUFFER_END
-            TEXTURE2D(_MainTex);
-            SAMPLER(sampler_MainTex);
-
-
-            Varyings vert (Attributes IN)
-            {
-                Varyings OUT;
-
-                // 정점의 x 위치와 시간에 따라 sin 값을 계산하여 y 위치를 변경
-                float wave = sin(IN.positionOS.x + _Time.y * _WaveSpeed) * _WaveHeight;
-                IN.positionOS.y += wave;
-
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = TRANSFORM_TEX(IN.uv, _MainTex);
-                return OUT;
-            }
-
-            half4 frag (Varyings IN) : SV_Target
-            {
-                return SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
-            }
-            ENDHLSL
-        }
-    }
-}
-```
+> **전체 코드(Unity 프로젝트에 포함)**: [`Shaders/Lessons/WavingFlag.shader`](./ShderTestProject/Assets/Shaders/Lessons/WavingFlag.shader)
+> 핵심: 변환 *전에* 정점 위치를 `sin(x + _Time.y*speed)` 로 수정. Plane/Quad 에 적용하세요.
 이 셰이더를 Plane 오브젝트에 적용하고 인스펙터에서 Wave Speed와 Wave Height 값을 조절해보세요.

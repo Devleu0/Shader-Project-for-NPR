@@ -5,6 +5,10 @@ This repository contains learning materials for shader programming.
 이 커리큘럼은 현대 3D 그래픽스의 핵심인 셰이더 프로그래밍을 HLSL과 DirectX, Unity 엔진, Win32 등 다양한 환경에서 체계적으로 학습할 수 있도록 설계되었습니다. 
 셰이더나 그래픽스가 처음이라면 Unity 환경에서 예제를 따라하며 기본기를 익히는 것을 추천합니다. 
 
+> **학습 순서와 검증 상태는 [docs/REVIEW.md](./docs/REVIEW.md) 를 먼저 보세요.**
+> 실행 가능한 코드는 Unity 프로젝트(`Unity shader/ShderTestProject`, Unity 2022.3 + URP 14)에 있고, 문서의 코드는 그 파일을 가리킵니다.
+> DirectX/HLSL 문서의 코드는 *발췌*이며 호스트(C++) 코드가 없어 그대로는 실행되지 않습니다.
+
 # 목차
 
 <details>
@@ -12,6 +16,7 @@ This repository contains learning materials for shader programming.
 
 - [유니티 셰이더 커리큘럼](./Unity%20shader/유니티%20셰이더%20커리큘럼.md)  
 - [고급 셰이더 기술 심화 학습 로드맵](./Unity%20shader/고급%20셰이더%20기술%20심화%20학습%20로드맵.md)  
+- NPR(툰) 셰이더 실습: [NPR/README](./Unity%20shader/NPR/README.md)  
 - 학습 자료  
   - [Part 1](./Unity%20shader%2F%EC%9C%A0%EB%8B%88%ED%8B%B0%20%EC%85%B0%EC%9D%B4%EB%8D%94%20ShaderLab%20%EA%B8%B0%EC%B4%88.md)  
   - [Part 2](./Unity%20shader/유니티%20셰이더%20Part%202%20학습%20자료.md)  
@@ -28,9 +33,9 @@ This repository contains learning materials for shader programming.
 ---
 
 * [HLSL/DirectX 셰이더 프로그래밍 커리큘럼](./Shader%20Learning/Basics/1.%20HLSLDirectX%20셰이더%20프로그래밍%20커리큘럼.md)
-* [HLSL/DirectX 학습자료 (1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%201).md)
-* [HLSL/DirectX 학습자료 (2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%202).md)
-* [HLSL/DirectX 학습자료 (3)](./Shader%20Learning/Basics/4.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20(Part%203).md)
+* [HLSL/DirectX 학습자료 (1)](./Shader%20Learning/Basics/2.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20%28Part%201%29.md)
+* [HLSL/DirectX 학습자료 (2)](./Shader%20Learning/Basics/3.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20%28Part%202%29.md)
+* [HLSL/DirectX 학습자료 (3)](./Shader%20Learning/Basics/4.%20HLSLDirectX%20셰이더%20프로그래밍%20학습자료%20%28Part%203%29.md)
 
 </details>
 
@@ -52,7 +57,7 @@ This repository contains learning materials for shader programming.
 <details>
 <summary> DirectX 11</summary>
 
-- [DirectX 11 학습](./DirectX%2011%20학습%20커리큘럼.md)  
+- [DirectX 11 학습](./Directx11/DirectX%2011%20학습%20커리큘럼.md)  
 - 단계별 학습  
   - [DirectX 11 기초](./Directx11/DirectX%2011%201단계.md)  
   - [DirectX 11 중급](./Directx11/DirectX%2011%202단계%20중급.md)  
@@ -69,7 +74,7 @@ This repository contains learning materials for shader programming.
 - [1. Win API 학습 기초](./Win32/1.%20Win%20API%20학습%20기초.md)  
 - [2. Win API 그래픽, 입력 처리](./Win32/2.%20Win%20API%20그래픽,%20입력%20처리.md)  
 - [3. Win API 표준 컨트롤과 리소스 활용](./Win32/3.%20Win%20API%20학습%20표준%20컨트롤과%20리소스%20활용.md)  
-- [4. Win API 고급 시스템 프로그래밍](./Win32/4.%20Win%20API%20고급%20시스템%20프로그래밍.md)  
+- [4. Win API 고급 시스템 프로그래밍](./Win32/4.%20Win%20API%20%20고급%20시스템%20프로그래밍.md)  
 - [Win API 예제 테스트 환경 활용 가이드](./Win32/Win%20API%20예제%20테스트%20환경%20활용%20가이드.md)  
 
 예제 코드  
